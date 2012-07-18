@@ -4,3 +4,9 @@
 *.jar
 *.war
 *.ear
+
+.DS_Store
+
+build/classes/clouddatamigration.properties
+
+build/classes/log4j.properties

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="cloud-data-migration-web" default="enhance" basedir=".">
+
+	<path id="enhancer.classpath">
+		<pathelement location="build/classes"/>
+		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar" />
+	</path>
+
+	<target name="enhance" description="DataNucleus enhancement">
+		<taskdef name="datanucleusenhancer" classpathref="enhancer.classpath" classname="org.datanucleus.enhancer.tools.EnhancerTask" />
+
+		<datanucleusenhancer classpathref="enhancer.classpath" failonerror="true" verbose="true">
+			<jvmarg line="-Dlog4j.configuration=file:build/classes/log4j.properties" />
+			<fileset dir="build/classes">
+				<include name="**/model/*.class" />
+			</fileset>
+		</datanucleusenhancer>
+	</target>
+</project>
