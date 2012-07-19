@@ -12,7 +12,7 @@
 <div class="row">
 	<div class="span12">
 		<h2>Your Projects</h2>
-		<table>
+		<table class="table table-striped table-bordered table-condensed">
 			<thead>
 				<tr>
 					<th>Name</th>
@@ -24,7 +24,8 @@
 			<tbody>
 				<%
 					User user = new User();
-					user = user.findBySessionToken(request.getParameter("sessionToken"));
+					user = user
+							.findBySessionToken(request.getParameter("sessionToken"));
 					Project projectService = new Project();
 					for (Project project : projectService.findAllByUser(user.getId())) {
 				%>
@@ -43,29 +44,29 @@
 					<td>
 						<%
 							CloudDataHostingSolution cloudDataHostingSolutionService = new CloudDataHostingSolution();
-							Map<String, CloudDataHostingSolution> cdhs = cloudDataHostingSolutionService.findAllByProject(project.getId());
-							String cdhsString = "";
-							if (cdhs.get("CLOUD_COMPUTING_SERVICE_MODEL") != null) {
-								cdhsString = cdhs.get("CLOUD_COMPUTING_SERVICE_MODEL")
-										.getCdhsCriterionPossibleValue().getName();
-							}
-							if (cdhs.get("CLOUD_COMPUTING_DEPLOYMENT_MODEL") != null) {
-								cdhsString += (cdhsString.isEmpty() ? "" : "-")
-										+ cdhs.get("CLOUD_COMPUTING_DEPLOYMENT_MODEL")
-												.getCdhsCriterionPossibleValue().getName();
-							}
-							if (cdhs.get("CLOUD_COMPUTING_DEPLOYMENT_MODEL") != null) {
-								cdhsString += (cdhsString.isEmpty() ? "" : "-")
-										+ cdhs.get("COMPATABILITY_PRODUCT_AND_VERSION")
-												.getCdhsCriterionPossibleValue().getName();
-							}
-							if (cdhs.get("AVAILABILITY_REPLICATION_TYPE") != null) {
-								cdhsString += (cdhsString.isEmpty() ? "" : "-")
-										+ cdhs.get("AVAILABILITY_REPLICATION_TYPE")
-												.getCdhsCriterionPossibleValue().getName();
-							}
-						%>
-						<%=cdhsString %>
+								Map<String, CloudDataHostingSolution> cdhs = cloudDataHostingSolutionService
+										.findAllByProject(project.getId());
+								String cdhsString = "";
+								if (cdhs.get("CLOUD_COMPUTING_SERVICE_MODEL") != null) {
+									cdhsString = cdhs.get("CLOUD_COMPUTING_SERVICE_MODEL")
+											.getCdhsCriterionPossibleValue().getName();
+								}
+								if (cdhs.get("CLOUD_COMPUTING_DEPLOYMENT_MODEL") != null) {
+									cdhsString += (cdhsString.isEmpty() ? "" : "-")
+											+ cdhs.get("CLOUD_COMPUTING_DEPLOYMENT_MODEL")
+													.getCdhsCriterionPossibleValue().getName();
+								}
+								if (cdhs.get("COMPATABILITY_PRODUCT_AND_VERSION") != null) {
+									cdhsString += (cdhsString.isEmpty() ? "" : "-")
+											+ cdhs.get("COMPATABILITY_PRODUCT_AND_VERSION")
+													.getCdhsCriterionPossibleValue().getName();
+								}
+								if (cdhs.get("AVAILABILITY_REPLICATION_TYPE") != null) {
+									cdhsString += (cdhsString.isEmpty() ? "" : "-")
+											+ cdhs.get("AVAILABILITY_REPLICATION_TYPE")
+													.getCdhsCriterionPossibleValue().getName();
+								}
+						%> <%=cdhsString%>
 					</td>
 					<td><%=project.getCloudDataStore() != null ? project
 						.getCloudDataStore().getName() : ""%></td>

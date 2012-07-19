@@ -1,5 +1,10 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.Collection;
+
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
+import javax.jdo.Transaction;
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -136,6 +141,36 @@ public class CDHSCriterionPossibleValue extends
 	 */
 	public void setCdhsCriterion(CDHSCriterion cdhsCriterion) {
 		this.cdhsCriterion = cdhsCriterion;
+	}
+
+	/**
+	 * Returns all possible values of the given criterion
+	 * 
+	 * @param cdhsCriterionId
+	 * @return
+	 */
+	public Collection<CDHSCriterionPossibleValue> getPossibleValues(
+			String cdhsCriterionId) {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			Query query = pm.newQuery(CDHSCriterionPossibleValue.class,
+					"cdhsCriterion == cdhsCriterionParameter");
+			query.declareParameters("String cdhsCriterionParameter");
+			query.setOrdering("orderNumber ASC");
+			@SuppressWarnings("unchecked")
+			Collection<CDHSCriterionPossibleValue> possibleValues = (Collection<CDHSCriterionPossibleValue>) query
+					.execute(cdhsCriterionId);
+			possibleValues = pm.detachCopyAll(possibleValues);
+			tx.commit();
+			return possibleValues;
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			pm.close();
+		}
 	}
 
 }
