@@ -107,30 +107,26 @@ public class CloudDataStoreProperty extends
 			@SuppressWarnings("unchecked")
 			Collection<CloudDataStoreProperty> cloudDataStoreProperties = (Collection<CloudDataStoreProperty>) query
 					.execute(cdsId);
-
 			cloudDataStoreProperties = pm
 					.detachCopyAll(cloudDataStoreProperties);
-
 			for (CloudDataStoreProperty cloudDataStoreProperty : cloudDataStoreProperties) {
-				CDHSCriterionPossibleValue cdhsCriterionPossibleValue = new CDHSCriterionPossibleValue();
-				cdhsCriterionPossibleValue = cdhsCriterionPossibleValue
-						.findByID(cloudDataStoreProperty
-								.getCdhsCriterionPossibleValue().getId());
-
 				if (cloudDataStorePropertySet
-						.containsKey(cdhsCriterionPossibleValue
+						.containsKey(cloudDataStoreProperty
+								.getCdhsCriterionPossibleValue()
 								.getCdhsCriterion().getKey())) {
 					cloudDataStorePropertySet.get(
-							cdhsCriterionPossibleValue.getCdhsCriterion()
-									.getKey()).add(cloudDataStoreProperty);
+							cloudDataStoreProperty
+									.getCdhsCriterionPossibleValue()
+									.getCdhsCriterion().getKey()).add(
+							cloudDataStoreProperty);
 				} else {
 					ArrayList<CloudDataStoreProperty> properties = new ArrayList<CloudDataStoreProperty>();
 					properties.add(cloudDataStoreProperty);
-					cloudDataStorePropertySet.put(cdhsCriterionPossibleValue
-							.getCdhsCriterion().getKey(), properties);
+					cloudDataStorePropertySet.put(cloudDataStoreProperty
+							.getCdhsCriterionPossibleValue().getCdhsCriterion()
+							.getKey(), properties);
 				}
 			}
-
 			tx.commit();
 			return cloudDataStorePropertySet;
 		} finally {
@@ -139,6 +135,13 @@ public class CloudDataStoreProperty extends
 			}
 			pm.close();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return cloudDataStore.getName() + " - "
+				+ cdhsCriterionPossibleValue.getCdhsCriterion().getKey()
+				+ " - " + cdhsCriterionPossibleValue.getKey();
 	}
 
 }

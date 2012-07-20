@@ -1,6 +1,10 @@
 package com.clouddatamigration.classification.controller;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,8 +30,15 @@ public class SigninServlet extends HttpServlet {
 
 		// login new user and redirect to project list
 		if (user.login(req.getParameter("password"))) {
-			resp.setHeader("Location",
-					"projects.jsp?sessionToken=" + user.getSessionToken());
+			Date expdate = new Date();
+			expdate.setTime(expdate.getTime() + (24 * 3600 * 1000));
+			DateFormat df = new SimpleDateFormat("dd MMM yyyy kk:mm:ss z");
+			df.setTimeZone(TimeZone.getTimeZone("GMT"));
+			resp.setHeader("Set-Cookie",
+					"sessionToken=" + user.getSessionToken() + "; Expires="
+							+ df.format(expdate) + "; Path=/; HTTPOnly");
+
+			resp.setHeader("Location", "projects.jsp");
 		} else {
 			resp.setHeader("Location", "index.jsp?error=signinFailed");
 		}

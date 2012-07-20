@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ page session="false"%>
+<%@ page import="com.clouddatamigration.classification.model.User"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,23 +32,53 @@ body {
 	href="ico/apple-touch-icon-ipad3.png" />
 </head>
 <body>
+	<%
+		String pageName = "index.jsp";
+		if (request.getAttribute("pageName") != null) {
+			pageName = (String) request.getAttribute("pageName");
+		}
+		User userHeader = new User();
+		String sessionTokenHeader = userHeader.findSessionToken(request
+				.getCookies());
+		userHeader = userHeader.findBySessionToken(sessionTokenHeader);
+	%>
 	<div class="navbar navbar-fixed-top">
 		<div class="navbar-inner">
 			<div class="container">
 				<a class="btn btn-navbar" data-toggle="collapse"
 					data-target=".nav-collapse"> <span class="icon-bar"></span> <span
 					class="icon-bar"></span> <span class="icon-bar"></span>
-				</a> <a class="brand" href="index.jsp">Cloud Data Migration
-					Assistant</a>
-
+				</a> <a class="brand" href="index.jsp"
+					style="font-weight: bold; color: white;"><img
+					src="ico/apple-touch-icon-ipad.png"
+					alt="Logo Cloud Data Migration Assistant"
+					style="height: 20px; margin-top: -6px; margin-left: 2px;" /> Cloud
+					Data Migration Assistant</a>
 				<ul class="nav">
-					<li class="active"><a href="index.jsp">Home</a></li>
-					<li><a href="cloud-data-stores.jsp">Cloud Data Stores</a></li>
-					<li><a href="about.jsp">About</a></li>
-					<li><a href="mailto:info@thobach.de">Contact</a></li>
+					<li class="divider-vertical"></li>
+					<li <%if (pageName.equals("index.jsp")) {%> class="active" <%}%>><a
+						href="index.jsp"><i class="icon-home icon-white"></i> Home</a></li>
+					<li <%if (pageName.equals("cloud-data-stores.jsp")) {%>
+						class="active" <%}%>><a href="cloud-data-stores.jsp"><i
+							class="icon-list-alt icon-white"></i> Cloud Data Stores</a></li>
+					<%
+						if (sessionTokenHeader != null && userHeader != null) {
+					%>
+					<li <%if (pageName.equals("projects.jsp")) {%> class="active" <%}%>><a
+						href="projects.jsp"><i class="icon-folder-open icon-white"></i>
+							Projects</a></li>
+					<%
+						}
+					%>
+					<li <%if (pageName.equals("about.jsp")) {%> class="active" <%}%>><a
+						href="about.jsp"><i class="icon-envelope icon-white"></i>
+							About</a></li>
 					<li class="divider-vertical"></li>
 				</ul>
 				<div class="nav-collapse">
+					<%
+						if (sessionTokenHeader == null || userHeader == null) {
+					%>
 					<form class="navbar-form pull-left" action="signin" method="post">
 						<input type="text" name="username" class="input-small"
 							placeholder="Username"> <input type="password"
@@ -54,12 +86,34 @@ body {
 						<button type="submit" class="btn" style="margin-bottom: 0">Sign
 							in</button>
 					</form>
+					<%
+						} else {
+					%><p class="navbar-text pull-left"
+						style="margin-right: 1em; width: 110px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+						<a href="projects.jsp"><i class="icon-user icon-white"></i> <%=userHeader.getEmail()%></a>
+					</p>
+					<form class="navbar-form pull-left" action="signout" method="post">
+						<button type="submit" class="btn btn-small"
+							style="margin-bottom: 0">Sign out</button>
+					</form>
+					<%
+						}
+					%>
 					<ul class="nav">
 						<li class="divider-vertical"></li>
 					</ul>
-					<form class="navbar-search pull-right" action="search"
-						method="post">
-						<input type="text" class="search-query" placeholder="Search">
+					<form class="navbar-search pull-right"
+						action="https://google.com/search" method="get">
+						<div class="input-append">
+							<input type="search" name="q" class="search-query"
+								placeholder="Search"
+								style="padding-top: 5px; padding-bottom: 5px; margin-top: -1px; width: 110px">
+							<button class="btn" type="submit" style="margin: 0;">
+								<i class="icon-search"></i>
+							</button>
+						</div>
+						<input type="hidden" name="as_sitesearch"
+							value="cloud-data-migration.com">
 					</form>
 				</div>
 				<!--/.nav-collapse -->

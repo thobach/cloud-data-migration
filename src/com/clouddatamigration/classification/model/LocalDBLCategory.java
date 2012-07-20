@@ -7,7 +7,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true")
-public class CDHSCategory extends AbstractModel<CDHSCategory> {
+public class LocalDBLCategory extends AbstractModel<LocalDBLCategory> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)

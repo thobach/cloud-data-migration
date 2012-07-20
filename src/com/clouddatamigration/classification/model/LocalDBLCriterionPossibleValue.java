@@ -12,16 +12,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true")
-public class CDHSCriterionPossibleValue extends
-		AbstractModel<CDHSCriterionPossibleValue> {
-
-	public enum Type {
-		SELECT, INPUT
-	}
-
-	public enum Scale {
-		NOT_COMPARABLE, UPPER_IS_BETTER, LOWER_IS_BETTER
-	}
+public class LocalDBLCriterionPossibleValue extends
+		AbstractModel<LocalDBLCriterionPossibleValue> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
@@ -35,16 +27,10 @@ public class CDHSCriterionPossibleValue extends
 	private String name;
 
 	@Persistent
-	private Type type;
-
-	@Persistent
 	private int orderNumber;
 
-	@Persistent
-	private Scale scale;
-
-	@Persistent(defaultFetchGroup = "true", column = "CDHSCriterion_id")
-	private CDHSCriterion cdhsCriterion;
+	@Persistent(defaultFetchGroup = "true", column = "LocalDBLCriterion_id")
+	private LocalDBLCriterion localDBLCriterion;
 
 	/**
 	 * @return the key
@@ -77,21 +63,6 @@ public class CDHSCriterionPossibleValue extends
 	}
 
 	/**
-	 * @return the type
-	 */
-	public Type getType() {
-		return type;
-	}
-
-	/**
-	 * @param type
-	 *            the type to set
-	 */
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	/**
 	 * @return the orderNumber
 	 */
 	public int getOrderNumber() {
@@ -107,18 +78,18 @@ public class CDHSCriterionPossibleValue extends
 	}
 
 	/**
-	 * @return the scale
+	 * @return the localDBLCriterion
 	 */
-	public Scale getScale() {
-		return scale;
+	public LocalDBLCriterion getLocalDBLCriterion() {
+		return localDBLCriterion;
 	}
 
 	/**
-	 * @param scale
-	 *            the scale to set
+	 * @param localDBLCriterion
+	 *            the localDBLCriterion to set
 	 */
-	public void setScale(Scale scale) {
-		this.scale = scale;
+	public void setLocalDBLCriterion(LocalDBLCriterion localDBLCriterion) {
+		this.localDBLCriterion = localDBLCriterion;
 	}
 
 	/**
@@ -129,39 +100,24 @@ public class CDHSCriterionPossibleValue extends
 	}
 
 	/**
-	 * @return the cdhsCriterion
-	 */
-	public CDHSCriterion getCdhsCriterion() {
-		return cdhsCriterion;
-	}
-
-	/**
-	 * @param cdhsCriterion
-	 *            the cdhsCriterion to set
-	 */
-	public void setCdhsCriterion(CDHSCriterion cdhsCriterion) {
-		this.cdhsCriterion = cdhsCriterion;
-	}
-
-	/**
 	 * Returns all possible values of the given criterion
 	 * 
-	 * @param cdhsCriterionId
+	 * @param localDBLCriterionParameterId
 	 * @return
 	 */
-	public Collection<CDHSCriterionPossibleValue> getPossibleValues(
-			String cdhsCriterionId) {
+	public Collection<LocalDBLCriterionPossibleValue> getPossibleValues(
+			String localDBLCriterionParameterId) {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
 			tx.begin();
-			Query query = pm.newQuery(CDHSCriterionPossibleValue.class,
-					"cdhsCriterion == cdhsCriterionParameter");
-			query.declareParameters("String cdhsCriterionParameter");
+			Query query = pm.newQuery(LocalDBLCriterionPossibleValue.class,
+					"localDBLCriterion == localDBLCriterionParameter");
+			query.declareParameters("String localDBLCriterionParameter");
 			query.setOrdering("orderNumber ASC");
 			@SuppressWarnings("unchecked")
-			Collection<CDHSCriterionPossibleValue> possibleValues = (Collection<CDHSCriterionPossibleValue>) query
-					.execute(cdhsCriterionId);
+			Collection<LocalDBLCriterionPossibleValue> possibleValues = (Collection<LocalDBLCriterionPossibleValue>) query
+					.execute(localDBLCriterionParameterId);
 			possibleValues = pm.detachCopyAll(possibleValues);
 			tx.commit();
 			return possibleValues;
@@ -175,8 +131,7 @@ public class CDHSCriterionPossibleValue extends
 
 	@Override
 	public String toString() {
-		return key + " - " + cdhsCriterion.getKey() + " - "
-				+ cdhsCriterion.getCdhsCategory().getName();
+		return key + " - " + localDBLCriterion.getName();
 	}
 
 }

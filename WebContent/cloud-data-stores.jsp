@@ -1,13 +1,15 @@
-<%@page
-	import="com.clouddatamigration.classification.model.CloudDataStore"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ page session="false"%>
 <%@ page
 	import="com.clouddatamigration.classification.model.CloudDataStore"%>
 <%@ page
 	import="com.clouddatamigration.classification.model.CloudDataStoreProperty"%>
 <%@ page import="java.util.Map"%>
 <%@ page import="java.util.ArrayList"%>
+<%
+	request.setAttribute("pageName", "cloud-data-stores.jsp");
+%>
 <%@ include file="common/header.jsp"%>
 <!-- Example row of columns -->
 <div class="row">

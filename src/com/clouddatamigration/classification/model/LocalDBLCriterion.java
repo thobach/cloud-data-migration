@@ -7,7 +7,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true")
-public class CDHSCategory extends AbstractModel<CDHSCategory> {
+public class LocalDBLCriterion extends AbstractModel<LocalDBLCriterion> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
@@ -19,6 +19,9 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 
 	@Persistent
 	private int orderNumber;
+
+	@Persistent(defaultFetchGroup = "true", column = "LocalDBLCategory_id")
+	private LocalDBLCategory localDBLCategory;
 
 	/**
 	 * @return the name
@@ -57,9 +60,24 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 		return id;
 	}
 
+	/**
+	 * @return the localDBLCategory
+	 */
+	public LocalDBLCategory getLocalDBLCategory() {
+		return localDBLCategory;
+	}
+
+	/**
+	 * @param localDBLCategory
+	 *            the localDBLCategory to set
+	 */
+	public void setLocalDBLCategory(LocalDBLCategory localDBLCategory) {
+		this.localDBLCategory = localDBLCategory;
+	}
+
 	@Override
 	public String toString() {
-		return name;
+		return name + " - " + localDBLCategory.getName();
 	}
 
 }

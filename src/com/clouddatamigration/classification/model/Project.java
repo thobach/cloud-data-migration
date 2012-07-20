@@ -195,5 +195,10 @@ public class Project extends AbstractModel<Project> {
 			pm.close();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 
 }

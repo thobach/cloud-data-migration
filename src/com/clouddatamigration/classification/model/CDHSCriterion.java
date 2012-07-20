@@ -72,6 +72,13 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 	}
 
 	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
 	 * @return the cdhsCategory
 	 */
 	public CDHSCategory getCdhsCategory() {
@@ -86,11 +93,9 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 		this.cdhsCategory = cdhsCategory;
 	}
 
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
+	@Override
+	public String toString() {
+		return key + " - " + cdhsCategory.getName();
 	}
 
 }

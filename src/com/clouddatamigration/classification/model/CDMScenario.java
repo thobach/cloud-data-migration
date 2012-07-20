@@ -90,4 +90,9 @@ public class CDMScenario extends AbstractModel<CDMScenario> {
 	public Date getCreated() {
 		return created;
 	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

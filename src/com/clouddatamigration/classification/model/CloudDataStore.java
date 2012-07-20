@@ -105,4 +105,9 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 		return id;
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+
 }

@@ -13,6 +13,7 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.servlet.http.Cookie;
 
 @PersistenceCapable(detachable = "true")
 public class User extends AbstractModel<User> {
@@ -247,6 +248,28 @@ public class User extends AbstractModel<User> {
 			}
 			pm.close();
 		}
+	}
+
+	/**
+	 * Returns the session token from the cookies
+	 * 
+	 * @param cookies
+	 * @return session token or null
+	 */
+	public String findSessionToken(Cookie[] cookies) {
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("sessionToken")) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		return username;
 	}
 
 }

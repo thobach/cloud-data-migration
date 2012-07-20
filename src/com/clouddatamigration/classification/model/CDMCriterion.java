@@ -7,7 +7,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true")
-public class CDHSCategory extends AbstractModel<CDHSCategory> {
+public class CDMCriterion extends AbstractModel<CDMCriterion> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
@@ -15,10 +15,28 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 	private String id;
 
 	@Persistent
+	private String key;
+
+	@Persistent
 	private String name;
 
 	@Persistent
 	private int orderNumber;
+
+	/**
+	 * @return the key
+	 */
+	public String getKey() {
+		return key;
+	}
+
+	/**
+	 * @param key
+	 *            the key to set
+	 */
+	public void setKey(String key) {
+		this.key = key;
+	}
 
 	/**
 	 * @return the name
@@ -59,7 +77,7 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 
 	@Override
 	public String toString() {
-		return name;
+		return key;
 	}
 
 }
