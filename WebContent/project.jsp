@@ -372,30 +372,61 @@
 					.getPossilbeSolutions(project.getId())) {
 		%>
 		<div class="control-group">
-			<label class="control-label">Possible Solution: <%=solution.getName()%></label>
-			<div class="controls" style="margin-left: 1em;">
-				<label class="checkbox" style="padding-left: 0">Description: <%=solution.getDescription()%></label>
-				<label class="checkbox" style="padding-left: 0"><em>
-						<%
-							if (solution.getCdmCriterionPossibleValue1() != null
-										&& solution.getCdmCriterionPossibleValue2() == null
-										&& solution.getCdhsCriterionPossibleValue() == null
-										&& solution.getLocalDBLCriterionPossibleValue() == null) {
-						%>Conflict: '<%=solution.getCdmCriterionPossibleValue1()
-							.getName()%>' of criterion '<%=solution.getCdmCriterionPossibleValue1()
-							.getCdmCriterion().getName()%>' is selected.<%
-							} else if (solution.getCdmCriterionPossibleValue1() != null
-										&& solution.getCdmCriterionPossibleValue2() != null
-										&& solution.getCdhsCriterionPossibleValue() == null
-										&& solution.getLocalDBLCriterionPossibleValue() == null) {
-						%>Conflict: '<%=solution.getCdmCriterionPossibleValue1()
-							.getName()%>' of criterion '<%=solution.getCdmCriterionPossibleValue1()
+			<label class="control-label"><strong>Conflict: </strong> <%
+ 	if (solution.getCdmCriterionPossibleValue1() != null
+ 				&& solution.getCdmCriterionPossibleValue2() == null
+ 				&& solution.getCdhsCriterionPossibleValue() == null
+ 				&& solution.getLocalDBLCriterionPossibleValue() == null) {
+ %>You selected '<%=solution.getCdmCriterionPossibleValue1()
+							.getCdmCriterion().getName()%>' for the cloud data migration
+				criterion '<%=solution.getCdmCriterionPossibleValue1()
+							.getName()%>'.<%
+ 	} else if (solution.getCdmCriterionPossibleValue1() != null
+ 				&& solution.getCdmCriterionPossibleValue2() != null
+ 				&& solution.getCdhsCriterionPossibleValue() == null
+ 				&& solution.getLocalDBLCriterionPossibleValue() == null) {
+ %>You selected '<%=solution.getCdmCriterionPossibleValue1()
+							.getName()%>' for the cloud data migration criterion '<%=solution.getCdmCriterionPossibleValue1()
 							.getCdmCriterion().getName()%>' and '<%=solution.getCdmCriterionPossibleValue2()
-							.getName()%>' of criterion '<%=solution.getCdmCriterionPossibleValue2()
-							.getCdmCriterion().getName()%>' is selected.<%
-							}
-						%>
-				</em></label>
+							.getName()%>' for the cloud data migration criterion '<%=solution.getCdmCriterionPossibleValue2()
+							.getCdmCriterion().getName()%>'.<%
+ 	} else if (solution.getCdmCriterionPossibleValue1() != null
+ 				&& solution.getCdmCriterionPossibleValue2() == null
+ 				&& solution.getCdhsCriterionPossibleValue() != null
+ 				&& solution.getLocalDBLCriterionPossibleValue() == null) {
+ %>You selected '<%=solution.getCdmCriterionPossibleValue1()
+							.getName()%>' for the cloud data migration criterion '<%=solution.getCdmCriterionPossibleValue1()
+							.getCdmCriterion().getName()%>' and your cloud data store has '<%=solution.getCdhsCriterionPossibleValue()
+							.getName()%>' selected for the criterion '<%=solution.getCdhsCriterionPossibleValue()
+							.getCdhsCriterion().getName()%>'.<%
+ 	} else if (solution.getCdmCriterionPossibleValue1() == null
+ 				&& solution.getCdmCriterionPossibleValue2() == null
+ 				&& solution.getCdhsCriterionPossibleValue() != null
+ 				&& solution.getLocalDBLCriterionPossibleValue() == null) {
+ %>Your cloud data store has '<%=solution.getCdhsCriterionPossibleValue()
+							.getName()%>' selected for the criterion '<%=solution.getCdhsCriterionPossibleValue()
+							.getCdhsCriterion().getName()%>'.<%
+ 	} else if (solution.getCdmCriterionPossibleValue1() == null
+ 				&& solution.getCdmCriterionPossibleValue2() == null
+ 				&& solution.getCdhsCriterionPossibleValue() == null
+ 				&& solution.getLocalDBLCriterionPossibleValue() != null) {
+ %>You selected '<%=solution.getLocalDBLCriterionPossibleValue()
+							.getName()%>' for the local data base criterion '<%=solution.getLocalDBLCriterionPossibleValue()
+							.getLocalDBLCriterion().getName()%>'.<%
+ 	} else if (solution.getCdmCriterionPossibleValue1() == null
+ 				&& solution.getCdmCriterionPossibleValue2() == null
+ 				&& solution.getCdhsCriterionPossibleValue() != null
+ 				&& solution.getLocalDBLCriterionPossibleValue() != null) {
+ %>You selected '<%=solution.getLocalDBLCriterionPossibleValue()
+							.getName()%>' for the local data base criterion '<%=solution.getLocalDBLCriterionPossibleValue()
+							.getLocalDBLCriterion().getName()%>' and your cloud data store has '<%=solution.getCdhsCriterionPossibleValue()
+							.getName()%>' selected for the criterion '<%=solution.getCdhsCriterionPossibleValue()
+							.getCdhsCriterion().getName()%>'.<%
+ 	}
+ %> </label>
+			<div class="controls" style="margin-left: 1em;">
+				<label class="checkbox" style="padding-left: 0"><strong>Possible
+						Solution</strong>: <em><%=solution.getName()%></em>. <%=solution.getDescription()%></label>
 			</div>
 		</div>
 		<%

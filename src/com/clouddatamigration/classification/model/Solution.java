@@ -160,11 +160,26 @@ public class Solution extends AbstractModel<Solution> {
 					.execute();
 			allSolutions = pm.detachCopyAll(allSolutions);
 
+			Project project = new Project();
+			project = project.findByID(projectId);
+
 			CDMStrategy cdmStrategyService = new CDMStrategy();
 			HashMap<String, ArrayList<CDMStrategy>> cdmStrategies = cdmStrategyService
-					.findAllByProject(projectId);
+					.findAllByProject(project.getId());
+
+			CloudDataStoreProperty cloudDataStorePropertyService = new CloudDataStoreProperty();
+			HashMap<String, ArrayList<CloudDataStoreProperty>> cloudDataStoreProperties = null;
+			if (project.getCloudDataStore() != null) {
+				cloudDataStoreProperties = cloudDataStorePropertyService
+						.findAllByCDS(project.getCloudDataStore().getId());
+			}
+
+			LocalDBLProperty localDBLPropertyService = new LocalDBLProperty();
+			HashMap<String, ArrayList<LocalDBLProperty>> localDBLProperties = localDBLPropertyService
+					.findAllByProject(project.getId());
 
 			for (Solution solution : allSolutions) {
+				// single possible value of CDM criterion selected
 				if (solution.getCdmCriterionPossibleValue1() != null
 						&& solution.getCdmCriterionPossibleValue2() == null
 						&& solution.getCdhsCriterionPossibleValue() == null
@@ -182,7 +197,10 @@ public class Solution extends AbstractModel<Solution> {
 							}
 						}
 					}
-				} else if (solution.getCdmCriterionPossibleValue1() != null
+				}
+				// two conflicting possible values of the same or different CDM
+				// criterion selected
+				else if (solution.getCdmCriterionPossibleValue1() != null
 						&& solution.getCdmCriterionPossibleValue2() != null
 						&& solution.getCdhsCriterionPossibleValue() == null
 						&& solution.getLocalDBLCriterionPossibleValue() == null) {
@@ -206,6 +224,109 @@ public class Solution extends AbstractModel<Solution> {
 														.getId())) {
 											solutions.add(solution);
 										}
+									}
+								}
+							}
+						}
+					}
+				}
+				// conflicting possible value of a CDM criterion and a cloud
+				// data store's criterion selected
+				else if (solution.getCdmCriterionPossibleValue1() != null
+						&& solution.getCdmCriterionPossibleValue2() == null
+						&& solution.getCdhsCriterionPossibleValue() != null
+						&& solution.getLocalDBLCriterionPossibleValue() == null
+						&& cloudDataStoreProperties != null) {
+					for (ArrayList<CDMStrategy> cdmStrategyList1 : cdmStrategies
+							.values()) {
+						for (ArrayList<CloudDataStoreProperty> cloudDataStorePropertyList : cloudDataStoreProperties
+								.values()) {
+							for (CDMStrategy cdmStrategy1 : cdmStrategyList1) {
+								for (CloudDataStoreProperty cloudDataStoreProperty : cloudDataStorePropertyList) {
+									if (solution
+											.getCdmCriterionPossibleValue1()
+											.getId()
+											.equals(cdmStrategy1
+													.getCdmCriterionPossibleValue()
+													.getId())
+											&& solution
+													.getCdhsCriterionPossibleValue()
+													.getId()
+													.equals(cloudDataStoreProperty
+															.getCdhsCriterionPossibleValue()
+															.getId())) {
+										solutions.add(solution);
+									}
+								}
+							}
+						}
+					}
+				} // single possible value of CDHS criterion selected
+				else if (solution.getCdmCriterionPossibleValue1() == null
+						&& solution.getCdmCriterionPossibleValue2() == null
+						&& solution.getCdhsCriterionPossibleValue() != null
+						&& solution.getLocalDBLCriterionPossibleValue() == null
+						&& cloudDataStoreProperties != null) {
+					for (ArrayList<CloudDataStoreProperty> cloudDataStorePropertyList : cloudDataStoreProperties
+							.values()) {
+						for (CloudDataStoreProperty cloudDataStoreProperty : cloudDataStorePropertyList) {
+							if (solution
+									.getCdhsCriterionPossibleValue()
+									.getId()
+									.equals(cloudDataStoreProperty
+											.getCdhsCriterionPossibleValue()
+											.getId())) {
+								solutions.add(solution);
+							}
+						}
+					}
+				}
+				// single possible value of local DBL criterion selected
+				else if (solution.getCdmCriterionPossibleValue1() == null
+						&& solution.getCdmCriterionPossibleValue2() == null
+						&& solution.getCdhsCriterionPossibleValue() == null
+						&& solution.getLocalDBLCriterionPossibleValue() != null) {
+					for (ArrayList<LocalDBLProperty> localDBLPropertyList : localDBLProperties
+							.values()) {
+						for (LocalDBLProperty localDBLProperty : localDBLPropertyList) {
+							if (solution
+									.getLocalDBLCriterionPossibleValue()
+									.getId()
+									.equals(localDBLProperty
+											.getLocalDBLCriterionPossibleValue()
+											.getId())) {
+								solutions.add(solution);
+							}
+						}
+					}
+				}
+				// conflicting possible value of a local DBL criterion and a
+				// cloud
+				// data store's criterion selected
+				else if (solution.getCdmCriterionPossibleValue1() == null
+						&& solution.getCdmCriterionPossibleValue2() == null
+						&& solution.getCdhsCriterionPossibleValue() != null
+						&& solution.getLocalDBLCriterionPossibleValue() != null
+						&& cloudDataStoreProperties != null) {
+					for (ArrayList<LocalDBLProperty> localDBLPropertyList : localDBLProperties
+							.values()) {
+						for (ArrayList<CloudDataStoreProperty> cloudDataStorePropertyList : cloudDataStoreProperties
+								.values()) {
+							for (LocalDBLProperty localDBLProperty : localDBLPropertyList) {
+								for (CloudDataStoreProperty cloudDataStoreProperty : cloudDataStorePropertyList) {
+									if (solution
+											.getLocalDBLCriterionPossibleValue()
+											.getId()
+											.equals(localDBLProperty
+													.getLocalDBLCriterionPossibleValue()
+													.getId())
+											&& solution
+													.getCdhsCriterionPossibleValue()
+													.getId()
+													.equals(cloudDataStoreProperty
+															.getCdhsCriterionPossibleValue()
+															.getId())) {
+										solutions.add(solution);
 									}
 								}
 							}
