@@ -47,12 +47,11 @@
 <!-- Example row of columns -->
 <div class="row">
 	<div class="span6">
-		<h2>
-			Sign Up <span class="label label-success">Free</span>
-		</h2>
-		<form class="form-horizontal" action="signup" method="post">
+		<form class="form-horizontal well" action="signup" method="post">
 			<fieldset>
-				<legend></legend>
+				<legend>
+					Sign Up <span class="label label-success">Free</span>
+				</legend>
 				<div class="control-group">
 					<label class="control-label" for="username">Username</label>
 					<div class="controls">
@@ -86,25 +85,27 @@
 		</form>
 	</div>
 	<div class="span6">
-		<h2>Supported Cloud Data Stores</h2>
-		<ul>
-			<%
-				CloudDataStore cdsService = new CloudDataStore();
-				for (CloudDataStore cloudDataStore : cdsService.findAll()) {
-			%>
-			<li><a
-				href="cloud-data-store.jsp?id=<%=cloudDataStore.getId()%>"><%=cloudDataStore.getName()%></a></li>
-			<%
-				}
-			%>
-		</ul>
-		<p>
-			<a class="btn" href="cloud-data-stores.jsp">View all &raquo;</a>
-		</p>
-		<p>
-			<a class="btn btn-primary" href="add-cloud-data-store.jsp">Add
-				New Cloud Data Store &raquo;</a>
-		</p>
+		<div class="well">
+			<h2>Supported Cloud Data Stores</h2>
+			<ul>
+				<%
+					CloudDataStore cdsService = new CloudDataStore();
+					for (CloudDataStore cloudDataStore : cdsService.findAll()) {
+				%>
+				<li><a
+					href="cloud-data-store.jsp?id=<%=cloudDataStore.getId()%>"><%=cloudDataStore.getName()%></a></li>
+				<%
+					}
+				%>
+			</ul>
+			<p>
+				<a class="btn" href="cloud-data-stores.jsp">View all &raquo;</a>
+			</p>
+			<p>
+				<a class="btn btn-primary" href="add-cloud-data-store.jsp">Add
+					New Cloud Data Store &raquo;</a>
+			</p>
+		</div>
 	</div>
 </div>
 <%@ include file="common/footer.jsp"%>

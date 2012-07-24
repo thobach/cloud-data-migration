@@ -1,3 +1,5 @@
+<%@page
+	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
 <%@page import="com.clouddatamigration.classification.model.Solution"%>
 <%@page
 	import="com.clouddatamigration.classification.model.LocalDBLCriterionPossibleValue"%>
@@ -237,12 +239,15 @@
 						}
 						inputValue = property.getValue();
 					}%>
-					<%if (checked) {%> checked="checked" <%}%> disabled="disabled">
-					<%=possibleValue.getName()%> <%
- 	if (possibleValue.getType() == CDHSCriterionPossibleValue.Type.INPUT) {
- %>: <input name="<%=possibleValue.getId()%>-value"
+					<%if (checked) {%> checked="checked" <%}%> disabled="disabled"
+					<%=possibleValue.getType() == Type.INPUT ? "style=\"margin-top: 8px;\""
+							: ""%>>
+					<%
+						out.print(possibleValue.getName());
+								if (possibleValue.getType() == CDHSCriterionPossibleValue.Type.INPUT) {
+					%>: <input name="<%=possibleValue.getId()%>-value"
 					value="<%=inputValue != null ? inputValue : ""%>"
-					disabled="disabled"
+					disabled="disabled" type="text"
 					style="width: <%=inputValue != null ? inputValue.length() * 7 + 10
 								: 100%>px;" />
 					<%
@@ -419,7 +424,8 @@
  				&& solution.getLocalDBLCriterionPossibleValue() != null) {
  %>You selected '<%=solution.getLocalDBLCriterionPossibleValue()
 							.getName()%>' for the local data base criterion '<%=solution.getLocalDBLCriterionPossibleValue()
-							.getLocalDBLCriterion().getName()%>' and your cloud data store has '<%=solution.getCdhsCriterionPossibleValue()
+							.getLocalDBLCriterion().getName()%>' and your cloud data store
+				has '<%=solution.getCdhsCriterionPossibleValue()
 							.getName()%>' selected for the criterion '<%=solution.getCdhsCriterionPossibleValue()
 							.getCdhsCriterion().getName()%>'.<%
  	}

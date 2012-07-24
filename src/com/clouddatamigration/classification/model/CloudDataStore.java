@@ -8,6 +8,9 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
 @PersistenceCapable(detachable = "true")
 public class CloudDataStore extends AbstractModel<CloudDataStore> {
 
@@ -26,6 +29,7 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 	private String website;
 
 	@Persistent
+	@Column(length = 65535)
 	private String description;
 
 	@Persistent
@@ -43,7 +47,7 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 	 *            the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Jsoup.clean(name, Whitelist.none());
 	}
 
 	/**
@@ -58,7 +62,7 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 	 *            the provider to set
 	 */
 	public void setProvider(String provider) {
-		this.provider = provider;
+		this.provider = Jsoup.clean(provider, Whitelist.none());
 	}
 
 	/**
@@ -73,7 +77,7 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 	 *            the website to set
 	 */
 	public void setWebsite(String website) {
-		this.website = website;
+		this.website = Jsoup.clean(website, Whitelist.none());
 	}
 
 	/**
@@ -88,7 +92,7 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 	 *            the description to set
 	 */
 	public void setDescription(String description) {
-		this.description = description;
+		this.description = Jsoup.clean(description, Whitelist.none());
 	}
 
 	/**

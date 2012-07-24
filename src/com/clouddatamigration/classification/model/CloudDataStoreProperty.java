@@ -14,6 +14,9 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
 @PersistenceCapable(detachable = "true")
 public class CloudDataStoreProperty extends
 		AbstractModel<CloudDataStoreProperty> {
@@ -82,7 +85,7 @@ public class CloudDataStoreProperty extends
 	 *            the input value to set
 	 */
 	public void setInputValue(String inputValue) {
-		this.inputValue = inputValue;
+		this.inputValue = Jsoup.clean(inputValue, Whitelist.none());
 	}
 
 	/**

@@ -84,8 +84,8 @@
 										: "-";
 						%> <%=security%></td>
 					<td><%=cloudDataStore.getDescription() != null ? cloudDataStore
-						.getDescription().substring(0, 200) + "..."
-						: ""%></td>
+						.getDescription().length() > 210 ? cloudDataStore
+						.getDescription().substring(0, 200) + "..." : "" : ""%></td>
 				</tr>
 				<%
 					}

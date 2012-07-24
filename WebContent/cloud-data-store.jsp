@@ -1,3 +1,5 @@
+<%@page
+	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page session="false"%>
@@ -16,7 +18,17 @@
 	request.setAttribute("pageName", "cloud-data-stores.jsp");
 %>
 <%@ include file="common/header.jsp"%>
-<form class="form-horizontal">
+<%
+	if (request.getParameter("info") != null
+			&& request.getParameter("info").equals("added")) {
+%><div class="alert alert-success">
+	Wow, thanks! <i class="icon-heart"></i> Your cloud data store was
+	saved.
+</div>
+<%
+	}
+%>
+<form class="form-horizontal well">
 	<%
 		CloudDataStore cloudDataStoreService = new CloudDataStore();
 		CloudDataStore cds = cloudDataStoreService.findByID(request
@@ -25,10 +37,14 @@
 		Map<String, ArrayList<CloudDataStoreProperty>> cdhs = cloudDataStorePropertyService
 				.findAllByCDS(cds.getId());
 	%>
-	<h2><%=cds.getName()%>
+	<h2 style="float: left;"><%=cds.getName()%>
 		(<a href="<%=cds.getWebsite()%>"><%=cds.getProvider()%></a>)
 	</h2>
-	<p><%=cds.getDescription()%></p>
+	<p style="float: right;">
+		<a class="btn" href="add-cloud-data-store.jsp?id=<%=cds.getId()%>">Edit
+			&raquo;</a>
+	</p>
+	<p style="clear: both;"><%=cds.getDescription()%></p>
 	<%
 		String lastCategory = "";
 		String lastCriterion = "";
@@ -73,20 +89,23 @@
 								property.getCdhsCriterionPossibleValue()
 										.getId())) {
 							checked = true;
+							inputValue = property.getInputValue();
 						}
-						inputValue = property.getInputValue();
 					}%>
-					<%if (checked) {%> checked="checked" <%}%> disabled="disabled">
-					<%=possibleValue.getName()%> <%
- 	if (possibleValue.getType() == CDHSCriterionPossibleValue.Type.INPUT) {
- %>: <input name="<%=possibleValue.getId()%>-value"
+					<%if (checked) {%> checked="checked" <%}%> disabled="disabled"
+					<%=possibleValue.getType() == Type.INPUT ? "style=\"margin-top: 8px;\""
+							: ""%>>
+					<%
+						out.print(possibleValue.getName());
+								if (possibleValue.getType() == CDHSCriterionPossibleValue.Type.INPUT) {
+					%>: <input name="<%=possibleValue.getId()%>-value"
 					value="<%=inputValue != null ? inputValue : ""%>"
 					disabled="disabled"
 					style="width: <%=inputValue != null ? inputValue.length() * 7 + 10
-								: 100%>px;" />
-					<%
-						}
-					%>
+								: 100%>px;"
+					type="text" /> <%
+ 	}
+ %>
 				</label>
 				<%
 					}

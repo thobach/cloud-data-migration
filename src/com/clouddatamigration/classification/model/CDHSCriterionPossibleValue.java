@@ -1,6 +1,9 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -165,6 +168,53 @@ public class CDHSCriterionPossibleValue extends
 			possibleValues = pm.detachCopyAll(possibleValues);
 			tx.commit();
 			return possibleValues;
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			pm.close();
+		}
+	}
+
+	/**
+	 * Returns the possible values for all cloud data hosting solutions grouped
+	 * by criterion, sorted by category
+	 * 
+	 * @return
+	 */
+	public Map<String, ArrayList<CDHSCriterionPossibleValue>> findAllGrouped() {
+		Map<String, ArrayList<CDHSCriterionPossibleValue>> cdhsCriterionPossibleValueMap = new LinkedHashMap<String, ArrayList<CDHSCriterionPossibleValue>>();
+		PersistenceManager pm = pmf.getPersistenceManager();
+		pm.getFetchPlan().setMaxFetchDepth(-1);
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			Query query = pm.newQuery(CDHSCriterionPossibleValue.class);
+			query.setOrdering("cdhsCriterion.cdhsCategory.orderNumber ASC, cdhsCriterion.orderNumber ASC, orderNumber ASC");
+			@SuppressWarnings("unchecked")
+			Collection<CDHSCriterionPossibleValue> cdhsCriterionPossibleValues = (Collection<CDHSCriterionPossibleValue>) query
+					.execute();
+			cdhsCriterionPossibleValues = pm
+					.detachCopyAll(cdhsCriterionPossibleValues);
+
+			for (CDHSCriterionPossibleValue cdhsCriterionPossibleValue : cdhsCriterionPossibleValues) {
+				if (cdhsCriterionPossibleValueMap
+						.containsKey(cdhsCriterionPossibleValue
+								.getCdhsCriterion().getKey())) {
+					cdhsCriterionPossibleValueMap.get(
+							cdhsCriterionPossibleValue.getCdhsCriterion()
+									.getKey()).add(cdhsCriterionPossibleValue);
+				} else {
+					ArrayList<CDHSCriterionPossibleValue> properties = new ArrayList<CDHSCriterionPossibleValue>();
+					properties.add(cdhsCriterionPossibleValue);
+					cdhsCriterionPossibleValueMap.put(
+							cdhsCriterionPossibleValue.getCdhsCriterion()
+									.getKey(), properties);
+				}
+			}
+
+			tx.commit();
+			return cdhsCriterionPossibleValueMap;
 		} finally {
 			if (tx.isActive()) {
 				tx.rollback();

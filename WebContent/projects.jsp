@@ -91,8 +91,8 @@
 			</tbody>
 		</table>
 		<p>
-			<a class="btn btn-primary" href="add-cloud-data-store.jsp">Add
-				New Cloud Data Store &raquo;</a>
+			<a class="btn btn-primary" href="add-project.jsp">Add New Project
+				&raquo;</a>
 		</p>
 	</div>
 </div>

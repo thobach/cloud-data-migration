@@ -17,6 +17,10 @@ body {
 	padding-top: 60px;
 	padding-bottom: 40px;
 }
+.radio.inline + .radio.inline,
+.checkbox.inline + .checkbox.inline {
+  margin-left: 25px;
+}
 </style>
 <!-- HTML5 for IE6-8 -->
 <!--[if lt IE 9]>
