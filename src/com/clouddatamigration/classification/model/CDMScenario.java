@@ -9,7 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDMScenario")
 public class CDMScenario extends AbstractModel<CDMScenario> {
 
 	@PrimaryKey
@@ -21,9 +21,10 @@ public class CDMScenario extends AbstractModel<CDMScenario> {
 	private String name;
 
 	@Persistent
+	@Column(jdbcType = "LONGVARCHAR")
 	private String description;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
 
 	@Persistent

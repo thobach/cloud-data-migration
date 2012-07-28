@@ -12,11 +12,17 @@ import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.Join;
+import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
+import com.clouddatamigration.store.model.CloudDataStore;
+
+@PersistenceCapable(detachable = "true", table = "Project")
 public class Project extends AbstractModel<Project> {
 
 	@PrimaryKey
@@ -24,10 +30,11 @@ public class Project extends AbstractModel<Project> {
 	@Column(jdbcType = "VARCHAR", length = 32)
 	private String id;
 
-	@Persistent
+	@Persistent(nullValue = NullValue.EXCEPTION)
 	private String name;
 
 	@Persistent
+	@Column(jdbcType = "LONGVARCHAR")
 	private String description;
 
 	@Persistent
@@ -39,7 +46,10 @@ public class Project extends AbstractModel<Project> {
 	@Persistent
 	private Date created = new Date();
 
-	@Persistent(defaultFetchGroup = "true", column = "User_id")
+	@Persistent
+	private Date updated;
+
+	@Persistent(defaultFetchGroup = "true", column = "User_id", nullValue = NullValue.EXCEPTION)
 	private User user;
 
 	@Persistent(defaultFetchGroup = "true", column = "CloudDataStore_id")
@@ -62,7 +72,7 @@ public class Project extends AbstractModel<Project> {
 	 *            the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = Jsoup.clean(name, Whitelist.none());
 	}
 
 	/**
@@ -77,7 +87,7 @@ public class Project extends AbstractModel<Project> {
 	 *            the description to set
 	 */
 	public void setDescription(String description) {
-		this.description = description;
+		this.description = Jsoup.clean(description, Whitelist.none());
 	}
 
 	/**
@@ -92,7 +102,7 @@ public class Project extends AbstractModel<Project> {
 	 *            the department to set
 	 */
 	public void setDepartment(String department) {
-		this.department = department;
+		this.department = Jsoup.clean(department, Whitelist.none());
 	}
 
 	/**
@@ -107,7 +117,7 @@ public class Project extends AbstractModel<Project> {
 	 *            the url to set
 	 */
 	public void setUrl(String url) {
-		this.url = url;
+		this.url = Jsoup.clean(url, Whitelist.none());
 	}
 
 	/**
@@ -170,6 +180,13 @@ public class Project extends AbstractModel<Project> {
 	}
 
 	/**
+	 * @return the updated
+	 */
+	public Date getUpdated() {
+		return updated;
+	}
+
+	/**
 	 * Returns the projects connected to the userId
 	 * 
 	 * @param userId
@@ -195,10 +212,18 @@ public class Project extends AbstractModel<Project> {
 			pm.close();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public Project save(Project project) {
+		if (project.getId() != null) {
+			updated = new Date();
+		}
+		return super.save(project);
 	}
 
 }

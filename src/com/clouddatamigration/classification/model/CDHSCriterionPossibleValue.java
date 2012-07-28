@@ -14,7 +14,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDHSCriterionPossibleValue")
 public class CDHSCriterionPossibleValue extends
 		AbstractModel<CDHSCriterionPossibleValue> {
 
@@ -40,7 +40,7 @@ public class CDHSCriterionPossibleValue extends
 	@Persistent
 	private Type type;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
 
 	@Persistent

@@ -15,7 +15,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.servlet.http.Cookie;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "User")
 public class User extends AbstractModel<User> {
 
 	@PrimaryKey
@@ -26,16 +26,16 @@ public class User extends AbstractModel<User> {
 	@Persistent
 	private String username;
 
-	@Persistent
+	@Persistent(column = "passwordHash")
 	private String passwordHash;
 
 	@Persistent
 	private String email;
 
-	@Persistent
+	@Persistent(column = "sessionToken")
 	private String sessionToken;
 
-	@Persistent
+	@Persistent(column = "sessionExpiryDate")
 	private Date sessionExpiryDate;
 
 	@Persistent
@@ -43,6 +43,9 @@ public class User extends AbstractModel<User> {
 
 	@Persistent
 	private Date created = new Date();
+
+	@Persistent
+	private Date updated;
 
 	/**
 	 * @return the username
@@ -175,6 +178,13 @@ public class User extends AbstractModel<User> {
 	}
 
 	/**
+	 * @return the updated
+	 */
+	public Date getUpdated() {
+		return updated;
+	}
+
+	/**
 	 * Checks the credentials and creates a session token
 	 * 
 	 * @param password
@@ -270,6 +280,14 @@ public class User extends AbstractModel<User> {
 	@Override
 	public String toString() {
 		return username;
+	}
+
+	@Override
+	public User save(User user) {
+		if (user.getId() != null) {
+			updated = new Date();
+		}
+		return super.save(user);
 	}
 
 }

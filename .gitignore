@@ -10,3 +10,15 @@
 build/classes/clouddatamigration.properties
 
 build/classes/log4j.properties
+
+src/com/clouddatamigration/classification/model/Solution.java
+
+WebContent/WEB-INF/classes/clouddatamigration.properties
+
+src/clouddatamigration.properties
+
+config-local/clouddatamigration.properties
+
+config-appengine/clouddatamigration.properties
+
+WebContent/WEB-INF/classes/log4j.properties

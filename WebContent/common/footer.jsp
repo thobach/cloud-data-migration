@@ -19,8 +19,8 @@
 	</div>
 </div>
 <!-- /container -->
-<script src="js/jquery-1.7.2.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
+<script src="/js/jquery-1.7.2.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	var pkBaseURL = (("https:" == document.location.protocol) ? "https://sslsites.de/stats.thobach.de/"
 			: "http://stats.thobach.de/");

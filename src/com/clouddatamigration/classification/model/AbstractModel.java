@@ -6,6 +6,7 @@ import java.util.Collection;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Query;
 import javax.jdo.Transaction;
 
 import org.apache.log4j.LogManager;
@@ -66,14 +67,17 @@ public class AbstractModel<T> {
 		}
 	}
 
-	public Collection<T> findAll() {
+	public Collection<T> findAll(String order) {
 		PersistenceManager pm = pmf.getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		try {
 			tx.begin();
+			Query query = pm.newQuery(persistentClass);
+			if (order != null) {
+				query.setOrdering(order);
+			}
 			@SuppressWarnings("unchecked")
-			Collection<T> object = (Collection<T>) pm.newQuery(persistentClass)
-					.execute();
+			Collection<T> object = (Collection<T>) query.execute();
 			object = pm.detachCopyAll(object);
 			tx.commit();
 			return object;
@@ -83,6 +87,10 @@ public class AbstractModel<T> {
 			}
 			pm.close();
 		}
+	}
+
+	public Collection<T> findAll() {
+		return findAll(null);
 	}
 
 	public void delete(T object) {

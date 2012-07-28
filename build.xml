@@ -1,19 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="cloud-data-migration-web" default="enhance" basedir=".">
+<project name="cloud-data-migration-web" default="enhance-local" basedir=".">
+
+	<!-- DATANUCLEUS -->
+	<target name="datanucleusenhance-app-engine" depends="compile" description="Performs JDO enhancement on compiled data classes.">
+		<enhance_war war="WebContent">
+			<args>
+				<arg value="-enhancerVersion" />
+				<arg value="v2" />
+			</args>
+		</enhance_war>
+	</target>
 
 	<path id="enhancer.classpath">
-		<pathelement location="build/classes"/>
+		<pathelement location="WebContent/WEB-INF/classes" />
 		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar" />
+		<fileset dir="lib-build" includes="*.jar" />
 	</path>
 
-	<target name="enhance" description="DataNucleus enhancement">
+	<target name="enhance-local" description="DataNucleus enhancement">
 		<taskdef name="datanucleusenhancer" classpathref="enhancer.classpath" classname="org.datanucleus.enhancer.tools.EnhancerTask" />
-
 		<datanucleusenhancer classpathref="enhancer.classpath" failonerror="true" verbose="true">
-			<jvmarg line="-Dlog4j.configuration=file:build/classes/log4j.properties" />
-			<fileset dir="build/classes">
+			<jvmarg line="-Dlog4j.configuration=file:WebContent/WEB-INF/classes/log4j.properties" />
+			<fileset dir="WebContent/WEB-INF/classes">
 				<include name="**/model/*.class" />
 			</fileset>
 		</datanucleusenhancer>
 	</target>
+
+	<!-- LOCAL -->
+	<target name="copyjars-local" description="Copies the App Engine JARs to the WAR.">
+		<delete>
+			<fileset dir="WebContent/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</delete>
+		<copy todir="WebContent/WEB-INF/lib" flatten="true">
+			<fileset dir="lib-local">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="lib-web">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="src" file="config-local/clouddatamigration.properties" overwrite="true" />
+	</target>
+
+	<!-- APP ENGINE -->
+	<property name="sdk.dir" location="/Applications/appengine-java-sdk-1.7.0" />
+	<import file="${sdk.dir}/config/user/ant-macros.xml" />
+
+	<path id="project.classpath">
+		<pathelement path="WebContent/WEB-INF/classes" />
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${sdk.dir}/lib">
+			<include name="shared/**/*.jar" />
+		</fileset>
+	</path>
+
+
+	<target name="copyjars-app-engine" description="Copies the App Engine JARs to the WAR.">
+		<delete>
+			<fileset dir="WebContent/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</delete>
+		<copy todir="WebContent/WEB-INF/lib" flatten="true">
+			<!--
+			<fileset dir="lib-appengine">
+				<include name="**/*.jar" />
+			</fileset>
+			-->
+			<fileset dir="lib-appengine">
+				<include name="**/google_sql.jar" />
+			</fileset>
+			<fileset dir="${sdk.dir}/lib/user">
+				<include name="**/appengine-api-1.0-sdk*.jar" />
+			</fileset>
+			<fileset dir="${sdk.dir}/lib/opt/user">
+				<include name="appengine-api-labs/v1/*.jar" />
+				<include name="jsr107/v1/*.jar" />
+				<include name="datanucleus/v2/*.jar" />
+			</fileset>
+			<fileset dir="lib-web">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="src" file="config-appengine/clouddatamigration.properties" overwrite="true" />
+	</target>
+
+	<target name="compile" description="Compiles Java source and copies other source files to the WAR.">
+		<mkdir dir="WebContent/WEB-INF/classes" />
+		<copy todir="WebContent/WEB-INF/classes">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<javac srcdir="src" destdir="WebContent/WEB-INF/classes" classpathref="project.classpath" debug="on" includeantruntime="false" />
+	</target>
+
+	<target name="runserver" depends="copyjars-app-engine, datanucleusenhance-app-engine" description="Starts the development server.">
+		<dev_appserver war="WebContent" port="8888">
+			<options>
+				<arg value="--jvm_flag=-Xdebug" />
+				<arg value="--jvm_flag=-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999" />
+			</options>
+		</dev_appserver>
+	</target>
+
+	<target name="update" depends="copyjars-app-engine, datanucleusenhance-app-engine" description="Uploads the application to App Engine.">
+		<appcfg action="update" war="WebContent" />
+	</target>
+
+	<target name="update_indexes" depends="copyjars-app-engine, datanucleusenhance-app-engine" description="Uploads just the datastore index configuration to App Engine.">
+		<appcfg action="update_indexes" war="WebContent" />
+	</target>
+
+	<target name="rollback" depends="copyjars-app-engine, datanucleusenhance-app-engine" description="Rolls back an interrupted application update.">
+		<appcfg action="rollback" war="WebContent" />
+	</target>
+
+	<target name="request_logs" description="Downloads log data from App Engine for the application.">
+		<appcfg action="request_logs" war="WebContent">
+			<options>
+				<arg value="--num_days=5" />
+			</options>
+			<args>
+				<arg value="logs.txt" />
+			</args>
+		</appcfg>
+	</target>
+
 </project>

@@ -11,7 +11,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDMCriterionPossibleValue")
 public class CDMCriterionPossibleValue extends
 		AbstractModel<CDMCriterionPossibleValue> {
 
@@ -26,7 +26,7 @@ public class CDMCriterionPossibleValue extends
 	@Persistent
 	private String name;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
 
 	@Persistent(defaultFetchGroup = "true", column = "CDMCriterion_id")
@@ -128,7 +128,7 @@ public class CDMCriterionPossibleValue extends
 			pm.close();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return key + " - " + cdmCriterion.getKey();

@@ -7,4 +7,52 @@
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	<servlet>
+		<servlet-name>SigninServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.SigninServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SigninServlet</servlet-name>
+		<url-pattern>/classification/signin</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>SignoutServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.SignoutServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SignoutServlet</servlet-name>
+		<url-pattern>/classification/signout</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>SignupServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.SignupServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SignupServlet</servlet-name>
+		<url-pattern>/classification/signup</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>CloudDataStoreServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.store.controller.CloudDataStoreServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CloudDataStoreServlet</servlet-name>
+		<url-pattern>/store/cloudDataStore</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ProjectServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProjectServlet</servlet-name>
+		<url-pattern>/classification/project</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ProjectStrategiesServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectStrategiesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProjectStrategiesServlet</servlet-name>
+		<url-pattern>/classification/projectStrategies</url-pattern>
+	</servlet-mapping>
 </web-app>

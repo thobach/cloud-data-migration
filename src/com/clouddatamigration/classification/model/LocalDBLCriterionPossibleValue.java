@@ -11,7 +11,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "LocalDBLCriterionPossibleValue")
 public class LocalDBLCriterionPossibleValue extends
 		AbstractModel<LocalDBLCriterionPossibleValue> {
 
@@ -26,7 +26,7 @@ public class LocalDBLCriterionPossibleValue extends
 	@Persistent
 	private String name;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
 
 	@Persistent(defaultFetchGroup = "true", column = "LocalDBLCriterion_id")

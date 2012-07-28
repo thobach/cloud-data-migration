@@ -7,14 +7,12 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.clouddatamigration.classification.model.User;
 
-@WebServlet("/signin")
 public class SigninServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -8633427528261901935L;
@@ -38,9 +36,9 @@ public class SigninServlet extends HttpServlet {
 					"sessionToken=" + user.getSessionToken() + "; Expires="
 							+ df.format(expdate) + "; Path=/; HTTPOnly");
 
-			resp.setHeader("Location", "projects.jsp");
+			resp.setHeader("Location", "/classification/projects.jsp");
 		} else {
-			resp.setHeader("Location", "index.jsp?error=signinFailed");
+			resp.setHeader("Location", "/index.jsp?error=signinFailed");
 		}
 	}
 }

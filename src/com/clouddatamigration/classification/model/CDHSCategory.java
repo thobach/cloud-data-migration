@@ -6,7 +6,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDHSCategory")
 public class CDHSCategory extends AbstractModel<CDHSCategory> {
 
 	@PrimaryKey
@@ -17,7 +17,7 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 	@Persistent
 	private String name;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
 
 	/**

@@ -14,12 +14,12 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDMStrategy")
 public class CDMStrategy extends AbstractModel<CDMStrategy> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
-	@Column(jdbcType = "VARCHAR", length = 32)
+	@Column(jdbcType = "VARCHAR", length = 32, name = "id")
 	private String id;
 
 	@Persistent(defaultFetchGroup = "true", column = "Project_id")

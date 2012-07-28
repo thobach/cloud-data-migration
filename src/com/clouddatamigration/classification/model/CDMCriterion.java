@@ -6,7 +6,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDMCriterion")
 public class CDMCriterion extends AbstractModel<CDMCriterion> {
 
 	@PrimaryKey
@@ -20,7 +20,7 @@ public class CDMCriterion extends AbstractModel<CDMCriterion> {
 	@Persistent
 	private String name;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
 
 	/**

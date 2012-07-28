@@ -14,7 +14,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "LocalDBLProperty")
 public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 
 	@PrimaryKey

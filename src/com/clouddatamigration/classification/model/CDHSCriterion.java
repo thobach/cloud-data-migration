@@ -6,8 +6,12 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable(detachable = "true")
+@PersistenceCapable(detachable = "true", table = "CDHSCriterion")
 public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
+
+	public enum SelectionType {
+		SINGLE, MULTIPLE
+	}
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
@@ -20,8 +24,15 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 	@Persistent
 	private String name;
 
-	@Persistent
+	@Persistent(column = "orderNumber")
 	private int orderNumber;
+
+	@Persistent
+	@Column(jdbcType = "LONGVARCHAR")
+	private String description;
+
+	@Persistent(column = "selectionType")
+	private SelectionType selectionType;
 
 	@Persistent(defaultFetchGroup = "true", column = "CDHSCategory_id")
 	private CDHSCategory cdhsCategory;
@@ -91,6 +102,36 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 	 */
 	public void setCdhsCategory(CDHSCategory cdhsCategory) {
 		this.cdhsCategory = cdhsCategory;
+	}
+
+	/**
+	 * @return the selectionType
+	 */
+	public SelectionType getSelectionType() {
+		return selectionType;
+	}
+
+	/**
+	 * @param selectionType
+	 *            the selectionType to set
+	 */
+	public void setSelectionType(SelectionType selectionType) {
+		this.selectionType = selectionType;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description
+	 *            the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Override
