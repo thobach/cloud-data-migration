@@ -10,7 +10,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true", table = "CDMScenario")
-public class CDMScenario extends AbstractModel<CDMScenario> {
+public class CDMScenario extends AbstractModel<CDMScenario> implements
+		Comparable<CDMScenario> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
@@ -95,5 +96,10 @@ public class CDMScenario extends AbstractModel<CDMScenario> {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(CDMScenario o) {
+		return this.orderNumber - o.orderNumber;
 	}
 }

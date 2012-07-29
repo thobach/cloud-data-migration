@@ -6,7 +6,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Cloud Data Migration</title>
+<title><%=request.getAttribute("title") == null ? "Cloud Data Migration"
+					: request.getAttribute("title")%></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description"
 	content="Cloud Data Store Providers and Assistence for Migration">
@@ -52,34 +53,30 @@ body {
 				<a class="btn btn-navbar" data-toggle="collapse"
 					data-target=".nav-collapse"> <span class="icon-bar"></span> <span
 					class="icon-bar"></span> <span class="icon-bar"></span>
-				</a> <a class="brand" href="/index.jsp"
+				</a> <a class="brand" href="/"
 					style="font-weight: bold; color: white;"><img
-					src="/img/logo.png"
-					alt="Logo Cloud Data Migration Assistant"
+					src="/img/logo.png" alt="Logo Cloud Data Migration Assistant"
 					style="height: 20px; margin-top: -6px; margin-left: 2px;" /> Cloud
-					Data Migration Assistant</a>
-				<ul class="nav">
-					<li class="divider-vertical"></li>
-					<li <%if (pageName.equals("index.jsp")) {%> class="active" <%}%>><a
-						href="/index.jsp"><i class="icon-home icon-white"></i> Home</a></li>
-					<li <%if (pageName.equals("cloud-data-stores.jsp")) {%>
-						class="active" <%}%>><a href="/store/cloud-data-stores.jsp"><i
-							class="icon-list-alt icon-white"></i> Cloud Data Stores</a></li>
-					<%
-						if (sessionTokenHeader != null && userHeader != null) {
-					%>
-					<li <%if (pageName.equals("projects.jsp")) {%> class="active" <%}%>><a
-						href="/classification/projects.jsp"><i
-							class="icon-folder-open icon-white"></i> Projects</a></li>
-					<%
-						}
-					%>
-					<li <%if (pageName.equals("about.jsp")) {%> class="active" <%}%>><a
-						href="/about.jsp"><i class="icon-envelope icon-white"></i>
-							About</a></li>
-					<li class="divider-vertical"></li>
-				</ul>
+					Data Migration</a>
 				<div class="nav-collapse">
+					<ul class="nav" style="margin-right: 0;">
+						<li <%if (pageName.equals("index.jsp")) {%> class="active" <%}%>><a
+							href="/"><i class="icon-home icon-white"></i> Home</a></li>
+						<li <%if (pageName.equals("cloud-data-stores.jsp")) {%>
+							class="active" <%}%>><a href="/store/cloud-data-stores.jsp"><i
+								class="icon-list-alt icon-white"></i> Cloud Data Stores</a></li>
+						<%
+							if (sessionTokenHeader != null && userHeader != null) {
+						%>
+						<li <%if (pageName.equals("projects.jsp")) {%> class="active"
+							<%}%>><a href="/classification/projects.jsp"><i
+								class="icon-folder-open icon-white"></i> Projects</a></li>
+						<%
+							}
+						%>
+						<li class="divider-vertical" style="margin-left: 0"></li>
+					</ul>
+
 					<%
 						if (sessionTokenHeader == null || userHeader == null) {
 					%>
@@ -94,19 +91,19 @@ body {
 					<%
 						} else {
 					%><p class="navbar-text pull-left"
-						style="margin-right: 1em; width: 110px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+						style="margin-right: 0.5em; width: 110px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
 						<a href="/classification/projects.jsp"><i
 							class="icon-user icon-white"></i> <%=userHeader.getEmail()%></a>
 					</p>
 					<form class="navbar-form pull-left"
 						action="/classification/signout" method="post">
 						<button type="submit" class="btn btn-small"
-							style="margin-bottom: 0">Sign out</button>
+							style="margin-bottom: 0; margin-left: 0;">Sign out</button>
 					</form>
 					<%
 						}
 					%>
-					<ul class="nav">
+					<ul class="nav" style="margin-right: 0;">
 						<li class="divider-vertical"></li>
 					</ul>
 					<form class="navbar-search pull-right"

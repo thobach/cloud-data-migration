@@ -3,7 +3,10 @@
 <%@ page session="false"%>
 <hr>
 <footer>
-	<p>&copy; Thomas Bachmann 2012</p>
+	<p>
+		&copy; Thomas Bachmann 2012 - <a href="/about.jsp"><i
+			class="icon-envelope"></i> About</a>
+	</p>
 </footer>
 </div>
 <div class="modal hide" id="loadingModal">

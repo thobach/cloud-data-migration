@@ -16,7 +16,14 @@
 <%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.Collection"%>
 <%
+	CloudDataStore cloudDataStoreService = new CloudDataStore();
+	CloudDataStore cds = cloudDataStoreService.findByID(request
+			.getParameter("id"));
+
 	request.setAttribute("pageName", "cloud-data-stores.jsp");
+	request.setAttribute("title",
+			cds.getName() + " (" + cds.getProvider()
+					+ ") - Cloud Data Store");
 %>
 <%@ include file="../common/header.jsp"%>
 <%
@@ -31,9 +38,6 @@
 %>
 <form class="form-horizontal well">
 	<%
-		CloudDataStore cloudDataStoreService = new CloudDataStore();
-		CloudDataStore cds = cloudDataStoreService.findByID(request
-				.getParameter("id"));
 		CloudDataStoreProperty cloudDataStorePropertyService = new CloudDataStoreProperty();
 		Map<String, ArrayList<CloudDataStoreProperty>> cdhs = cloudDataStorePropertyService
 				.findAllByCDS(cds.getId());
@@ -121,7 +125,7 @@
 				<p class="help-block">
 					<i class="icon-info-sign" style="opacity: 0.5"></i>
 					<%=properties.get(0).getCdhsCriterionPossibleValue()
-							.getCdhsCriterion().getDescription()%></p>
+						.getCdhsCriterion().getDescription()%></p>
 			</div>
 			<%
 				if (!properties.get(0).getCdhsCriterionPossibleValue()

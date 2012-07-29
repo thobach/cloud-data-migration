@@ -1,3 +1,4 @@
+<%@page import="java.util.Set"%>
 <%@page
 	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
 <%@page import="com.clouddatamigration.classification.model.Solution"%>
@@ -10,7 +11,6 @@
 	import="com.clouddatamigration.classification.model.LocalDBLProperty"%>
 <%@page
 	import="com.clouddatamigration.classification.model.CloudDataHostingSolution"%>
-<%@page import="com.clouddatamigration.classification.model.CDMStrategy"%>
 <%@page import="com.clouddatamigration.classification.model.Project"%>
 <%@page import="com.clouddatamigration.classification.model.CDMScenario"%>
 <%@page import="com.clouddatamigration.store.model.CloudDataStore"%>
@@ -56,28 +56,29 @@
 		Project project = projectService.findByID(request
 				.getParameter("id"));
 	%>
-	<h2 style="float: left;"><%=project.getName()%>
-		(<a href="<%=project.getUrl()%>"><%=project.getDepartment()%></a>)
-	</h2>
+	<h1 style="float: left;">
+		<a href="<%=project.getUrl()%>"><%=project.getName()%></a> (<%=project.getDepartment()%>)
+	</h1>
 	<p style="float: right;">
 		<a class="btn"
-			href="/classification/add-project.jsp?id=<%=project.getId()%>">Edit
+			href="/classification/set-project-description.jsp?id=<%=project.getId()%>">Edit
 			&raquo;</a>
 	</p>
-	<p style="clear: both;"><%=project.getDescription()%></p>
+	<p style="clear: both;" class="lead"><%=project.getDescription()%></p>
 	<p>
-		Follow Your Migration Steps: <a href="#step1">1. Identify Cloud migration scenario</a> - <a
-			href="#step2">2. Describe desired Cloud data hosting solution</a> - <a
-			href="#step3">3. Select Cloud data store</a> - <a href="#step4">4.
-			Identify patterns to solve potential conflicts</a> - <a href="#step5">5.
-			Adapt data access layer and upper application layers if needed</a> - <a
-			href="#step6">6. Migrate data to the selected Cloud data store</a>
+		Follow Your Migration Steps: <a href="#step1">1. Identify Cloud
+			migration scenario</a> - <a href="#step2">2. Describe desired Cloud
+			data hosting solution</a> - <a href="#step3">3. Select Cloud data
+			store</a> - <a href="#step4">4. Identify patterns to solve potential
+			conflicts</a> - <a href="#step5">5. Adapt data access layer and upper
+			application layers if needed</a> - <a href="#step6">6. Migrate data
+			to the selected Cloud data store</a>
 	</p>
 	<fieldset>
 		<legend id="step1">
 			Step 1a: Select Migration Scenario <a class="btn btn-small"
 				style="float: right"
-				href="/classification/add-strategy.jsp?id=<%=project.getId()%>">Edit
+				href="/classification/set-migration-scenario.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
 		<div class="control-group">
@@ -103,48 +104,44 @@
 		<legend>
 			Step 1b: Refine Cloud Data Migration Strategy <a
 				class="btn btn-small" style="float: right"
-				href="/classification/migration-strategy-edit.jsp?<%=project.getId()%>">Edit
+				href="/classification/set-migration-strategy.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
 		<%
 			String lastCriterion = "";
 
-			CDMStrategy cdmStrategyService = new CDMStrategy();
-			Map<String, ArrayList<CDMStrategy>> strategy = cdmStrategyService
-					.findAllByProject(project.getId());
-			for (ArrayList<CDMStrategy> properties : strategy.values()) {
+			Set<CDMCriterionPossibleValue> cdmStrategies = project
+					.getCdmCriterionPossibleValues();
+			for (CDMCriterionPossibleValue cdmCriterionPossibleValue : cdmStrategies) {
+				if (!cdmCriterionPossibleValue.getCdmCriterion().getId()
+						.equals(lastCriterion)) {
 		%>
 
 		<%
-			if (!properties.get(0).getCdmCriterionPossibleValue()
-						.getCdmCriterion().getId().equals(lastCriterion)) {
+			if (!cdmCriterionPossibleValue.getCdmCriterion().getId()
+							.equals(lastCriterion)) {
 		%><div class="control-group">
-			<label class="control-label"><%=properties.get(0).getCdmCriterionPossibleValue()
-							.getCdmCriterion().getName()%></label>
+			<label class="control-label"><%=cdmCriterionPossibleValue.getCdmCriterion()
+								.getName()%></label>
 			<%
 				}
 			%><div class="controls">
 				<%
-					Collection<CDMCriterionPossibleValue> possibleValues = properties
-								.get(0)
-								.getCdmCriterionPossibleValue()
-								.getPossibleValues(
-										properties.get(0)
-												.getCdmCriterionPossibleValue()
-												.getCdmCriterion().getId());
-						for (CDMCriterionPossibleValue possibleValue : possibleValues) {
+					Collection<CDMCriterionPossibleValue> possibleValues = cdmCriterionPossibleValue
+									.getPossibleValues(cdmCriterionPossibleValue
+											.getCdmCriterion().getId());
+							for (CDMCriterionPossibleValue possibleValue : possibleValues) {
 				%>
 				<label class="checkbox inline"> <input type="checkbox"
 					id="optionsCheckbox" value="<%=possibleValue.getId()%>"
 					<%boolean checked = false;
-					String inputValue = "";
-					for (CDMStrategy property : properties) {
-						if (possibleValue.getId()
-								.equals(property.getCdmCriterionPossibleValue()
-										.getId())) {
-							checked = true;
-						}
-					}%>
+						String inputValue = "";
+						for (CDMCriterionPossibleValue cdmStrategy : cdmStrategies) {
+							if (possibleValue.getId().equals(
+									cdmStrategy.getId())) {
+								checked = true;
+							}
+						}%>
 					<%if (checked) {%> checked="checked" <%}%> disabled="disabled">
 					<%=possibleValue.getName()%> <%%>
 				</label>
@@ -153,16 +150,16 @@
 				%>
 			</div>
 			<%
-				if (!properties.get(0).getCdmCriterionPossibleValue()
-							.getCdmCriterion().getId().equals(lastCriterion)) {
+				if (!cdmCriterionPossibleValue.getCdmCriterion().getId()
+								.equals(lastCriterion)) {
 			%>
 		</div>
 		<%
 			}
 		%>
 		<%
-			lastCriterion = properties.get(0)
-						.getCdmCriterionPossibleValue().getCdmCriterion()
+			}
+				lastCriterion = cdmCriterionPossibleValue.getCdmCriterion()
 						.getId();
 			}
 		%>

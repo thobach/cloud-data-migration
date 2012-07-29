@@ -48,11 +48,19 @@
 		<url-pattern>/classification/project</url-pattern>
 	</servlet-mapping>
 	<servlet>
-		<servlet-name>ProjectStrategiesServlet</servlet-name>
-		<servlet-class>com.clouddatamigration.classification.controller.ProjectStrategiesServlet</servlet-class>
+		<servlet-name>ProjectScenariosServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectScenariosServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>ProjectStrategiesServlet</servlet-name>
-		<url-pattern>/classification/projectStrategies</url-pattern>
+		<servlet-name>ProjectScenariosServlet</servlet-name>
+		<url-pattern>/classification/projectScenarios</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ProjectStrategyServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectStrategyServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProjectStrategyServlet</servlet-name>
+		<url-pattern>/classification/projectStrategy</url-pattern>
 	</servlet-mapping>
 </web-app>

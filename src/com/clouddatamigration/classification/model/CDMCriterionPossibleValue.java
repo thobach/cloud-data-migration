@@ -13,7 +13,8 @@ import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true", table = "CDMCriterionPossibleValue")
 public class CDMCriterionPossibleValue extends
-		AbstractModel<CDMCriterionPossibleValue> {
+		AbstractModel<CDMCriterionPossibleValue> implements
+		Comparable<CDMCriterionPossibleValue> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
@@ -132,6 +133,16 @@ public class CDMCriterionPossibleValue extends
 	@Override
 	public String toString() {
 		return key + " - " + cdmCriterion.getKey();
+	}
+
+	@Override
+	public int compareTo(CDMCriterionPossibleValue o) {
+		if (this.cdmCriterion.getId().equals(o.getCdmCriterion().getId())) {
+			return this.orderNumber - o.orderNumber;
+		} else {
+			return this.cdmCriterion.getOrderNumber()
+					- o.getCdmCriterion().getOrderNumber();
+		}
 	}
 
 }

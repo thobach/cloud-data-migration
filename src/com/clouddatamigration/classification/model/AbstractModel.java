@@ -52,6 +52,7 @@ public class AbstractModel<T> {
 
 	public T findByID(String id) {
 		PersistenceManager pm = pmf.getPersistenceManager();
+		pm.getFetchPlan().setMaxFetchDepth(3);
 		Transaction tx = pm.currentTransaction();
 		try {
 			tx.begin();
@@ -69,6 +70,7 @@ public class AbstractModel<T> {
 
 	public Collection<T> findAll(String order) {
 		PersistenceManager pm = pmf.getPersistenceManager();
+		pm.getFetchPlan().setMaxFetchDepth(3);
 		Transaction tx = pm.currentTransaction();
 		try {
 			tx.begin();

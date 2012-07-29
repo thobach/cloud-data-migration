@@ -2,8 +2,8 @@ package com.clouddatamigration.classification.model;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -58,7 +58,12 @@ public class Project extends AbstractModel<Project> {
 	@Persistent(table = "Project_has_CDMScenario", defaultFetchGroup = "true")
 	@Join(column = "Project_id")
 	@Element(column = "CDMScenario_id")
-	private Set<CDMScenario> cdmScenarios = new HashSet<CDMScenario>();
+	private Set<CDMScenario> cdmScenarios = new TreeSet<CDMScenario>();
+
+	@Persistent(table = "CDMStrategy", defaultFetchGroup = "true")
+	@Join(column = "Project_id")
+	@Element(column = "CDMCriterionPossibleValue_id")
+	private Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
 
 	/**
 	 * @return the name
@@ -168,7 +173,7 @@ public class Project extends AbstractModel<Project> {
 	 * @return the cdmScenarios
 	 */
 	public Set<CDMScenario> getCdmScenarios() {
-		return cdmScenarios;
+		return new TreeSet<CDMScenario>(cdmScenarios);
 	}
 
 	/**
@@ -177,6 +182,23 @@ public class Project extends AbstractModel<Project> {
 	 */
 	public void setCdmScenarios(Set<CDMScenario> cdmScenarios) {
 		this.cdmScenarios = cdmScenarios;
+	}
+
+	/**
+	 * @return the cdmCriterionPossibleValues
+	 */
+	public Set<CDMCriterionPossibleValue> getCdmCriterionPossibleValues() {
+		return new TreeSet<CDMCriterionPossibleValue>(
+				cdmCriterionPossibleValues);
+	}
+
+	/**
+	 * @param cdmCriterionPossibleValues
+	 *            the cdmCriterionPossibleValues to set
+	 */
+	public void setCdmCriterionPossibleValues(
+			Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues) {
+		this.cdmCriterionPossibleValues = cdmCriterionPossibleValues;
 	}
 
 	/**

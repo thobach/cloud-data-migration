@@ -4,7 +4,7 @@
 	pageEncoding="UTF-8"%>
 <%@ page session="false"%>
 <%
-	request.setAttribute("pageName", "cloud-data-stores.jsp");
+	request.setAttribute("pageName", "projects.jsp");
 %>
 <%@ include file="../common/header.jsp"%>
 <%
@@ -19,15 +19,12 @@
 		return;
 	}
 %>
-<%
-	if (!(project != null && project.getId() != null)) {
-%>
-<h1 style="margin-bottom: 0.3em;">Add a New Migration Strategy</h1>
-<%
-	}
-%>
+<h1>Step 1a: Select Migration Scenario</h1>
+<p class="lead">In the first step of the Cloud data migration
+	process you describe the main idea of your migration. What is the
+	reason for the migration project?</p>
 <form class="form-horizontal well" method="post"
-	action="/classification/projectStrategies">
+	action="/classification/projectScenarios">
 	<input type="hidden" name="id" value="<%=project.getId()%>" />
 	<fieldset>
 		<legend>Possible Cloud Data Migration Scenarios</legend>
@@ -47,8 +44,8 @@
 
 			<div class="controls">
 				<label class="checkbox inline"><input type="checkbox"
-					id="cdmScenario" name="cdmScenario" <%if (checked) {%>
-					checked="checked" <%}%> value="<%=cdmScenario.getId()%>"><%=cdmScenario.getName()%></label>
+					name="cdmScenario" <%if (checked) {%> checked="checked" <%}%>
+					value="<%=cdmScenario.getId()%>"><%=cdmScenario.getName()%></label>
 				<p class="help-block" style="margin-top: 0.2em; margin-bottom: 1em;">
 					<i class="icon-info-sign" style="opacity: 0.5"></i>
 					<%=cdmScenario.getDescription()%></p>

@@ -26,7 +26,9 @@
 <!-- Example row of columns -->
 <div class="row">
 	<div class="span12">
-		<h2>Your Projects</h2>
+		<h1>Your Projects</h1>
+		<p class="lead">Every Cloud data migration should be organized in
+			a separate project.</p>
 		<table class="table table-striped table-bordered table-condensed">
 			<thead>
 				<tr>
@@ -92,8 +94,9 @@
 			</tbody>
 		</table>
 		<p>
-			<a class="btn btn-primary" href="/classification/add-project.jsp">Add
-				New Project &raquo;</a>
+			<a class="btn btn-primary"
+				href="/classification/set-project-description.jsp">Add New
+				Project &raquo;</a>
 		</p>
 	</div>
 </div>

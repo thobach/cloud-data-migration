@@ -8,6 +8,22 @@
 <%@ page import="java.util.ArrayList"%>
 <%
 	request.setAttribute("pageName", "cloud-data-stores.jsp");
+	String filter = request.getParameter("filter");
+	String filterTitle;
+	if (filter == null) {
+		filterTitle = "List of Cloud Data Stores (RDBMS, NoSQL, BLOBL, CDN), DBaaS";
+	} else if (filter.equals("rdbms")) {
+		filterTitle = "Relational Cloud Database List (RDBMS), DBaaS";
+	} else if (filter.equals("nosql")) {
+		filterTitle = "NoSQL Cloud Database List (Key-Value Stores), DBaaS";
+	} else if (filter.equals("blob")) {
+		filterTitle = "Blob Cloud Data Store Lost (File/Binary Data Stores), DBaaS";
+	} else if (filter.equals("cdn")) {
+		filterTitle = "Cloud Content Delivery Network List (CDN), DBaaS";
+	} else {
+		filterTitle = "List of Cloud Data Stores";
+	}
+	request.setAttribute("title", filterTitle);
 %>
 <%@ include file="../common/header.jsp"%>
 <!-- Example row of columns -->
@@ -46,7 +62,6 @@
 
 						if (request.getParameter("filter") != null
 								&& !request.getParameter("filter").isEmpty()) {
-							String filter = request.getParameter("filter");
 							if (filter.equals("rdbms")
 									&& cdhs.get("STORAGE_TYPE") != null) {
 								boolean isRdbms = false;

@@ -1,18 +1,18 @@
 package com.clouddatamigration.classification.controller;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.clouddatamigration.classification.model.CDMScenario;
+import com.clouddatamigration.classification.model.CDMCriterionPossibleValue;
 import com.clouddatamigration.classification.model.Project;
 
-public class ProjectStrategiesServlet extends HttpServlet {
+public class ProjectStrategyServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 2909682309530795891L;
 
@@ -26,12 +26,14 @@ public class ProjectStrategiesServlet extends HttpServlet {
 		if (req.getParameter("id") != null && !req.getParameter("id").isEmpty()) {
 			project = project.findByID(req.getParameter("id"));
 		}
-		Set<CDMScenario> scenarios = new HashSet<CDMScenario>();
-		CDMScenario cdmScenarioService = new CDMScenario();
-		for (String cdmScenario : req.getParameterValues("cdmScenario")) {
-			scenarios.add(cdmScenarioService.findByID(cdmScenario));
+		Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
+		CDMCriterionPossibleValue cdmCriterionPossibleValueService = new CDMCriterionPossibleValue();
+		for (String cdmCriterionPossibleValue : req
+				.getParameterValues("cdmCriterionPossibleValue")) {
+			cdmCriterionPossibleValues.add(cdmCriterionPossibleValueService
+					.findByID(cdmCriterionPossibleValue));
 		}
-		project.setCdmScenarios(scenarios);
+		project.setCdmCriterionPossibleValues(cdmCriterionPossibleValues);
 		project = project.save(project);
 
 		resp.setHeader("Location",
