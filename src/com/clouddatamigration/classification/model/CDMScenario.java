@@ -2,9 +2,12 @@ package com.clouddatamigration.classification.model;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -32,7 +35,12 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	private Date created = new Date();
 
 	@Persistent(mappedBy = "cdmScenarios")
-	Set<Project> projects;
+	private Set<Project> projects;
+
+	@Persistent(table = "CDMScenario_has_CDMCriterionPossibleValue", defaultFetchGroup = "true")
+	@Join(column = "CDMScenario_id")
+	@Element(column = "CDMCriterionPossibleValue_id")
+	private Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
 
 	/**
 	 * @return the name
@@ -91,6 +99,38 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	 */
 	public Date getCreated() {
 		return created;
+	}
+
+	/**
+	 * @return the projects
+	 */
+	public Set<Project> getProjects() {
+		return projects;
+	}
+
+	/**
+	 * @param projects
+	 *            the projects to set
+	 */
+	public void setProjects(Set<Project> projects) {
+		this.projects = projects;
+	}
+
+	/**
+	 * @return the cdmCriterionPossibleValues
+	 */
+	public Set<CDMCriterionPossibleValue> getCdmCriterionPossibleValues() {
+		return new TreeSet<CDMCriterionPossibleValue>(
+				cdmCriterionPossibleValues);
+	}
+
+	/**
+	 * @param cdmCriterionPossibleValues
+	 *            the cdmCriterionPossibleValues to set
+	 */
+	public void setCdmCriterionPossibleValues(
+			Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues) {
+		this.cdmCriterionPossibleValues = cdmCriterionPossibleValues;
 	}
 
 	@Override

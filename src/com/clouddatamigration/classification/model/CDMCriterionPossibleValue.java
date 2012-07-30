@@ -1,12 +1,16 @@
 package com.clouddatamigration.classification.model;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -32,6 +36,11 @@ public class CDMCriterionPossibleValue extends
 
 	@Persistent(defaultFetchGroup = "true", column = "CDMCriterion_id")
 	private CDMCriterion cdmCriterion;
+
+	@Persistent(table = "CDMScenario_has_CDMCriterionPossibleValue", defaultFetchGroup = "true")
+	@Join(column = "CDMCriterionPossibleValue_id")
+	@Element(column = "CDMScenario_id")
+	private Set<CDMScenario> cdmScenarios = new TreeSet<CDMScenario>();
 
 	/**
 	 * @return the key
@@ -98,6 +107,13 @@ public class CDMCriterionPossibleValue extends
 	 */
 	public String getId() {
 		return id;
+	}
+
+	/**
+	 * @return the cdmScenarios
+	 */
+	public Set<CDMScenario> getCdmScenarios() {
+		return new TreeSet<CDMScenario>(cdmScenarios);
 	}
 
 	/**

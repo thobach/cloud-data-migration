@@ -1,3 +1,4 @@
+<%@page import="java.util.Arrays"%>
 <%@page import="java.util.Set"%>
 <%@page
 	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
@@ -161,6 +162,97 @@
 			}
 				lastCriterion = cdmCriterionPossibleValue.getCdmCriterion()
 						.getId();
+			}
+		%>
+	</fieldset>
+</form>
+<form class="">
+	<fieldset>
+		<legend> Step 1c: Identify Potential Migration Strategy
+			Conflicts </legend>
+		<%
+			int numberOfConflicts = 0;
+			for (CDMScenario cdmScenario : project.getCdmScenarios()) {
+				for (CDMCriterionPossibleValue actualCdmCriterionPossibleValue : project
+						.getCdmCriterionPossibleValues()) {
+					boolean criterionValueSupported = false;
+					ArrayList<String> supportedValues = new ArrayList<String>();
+					for (CDMCriterionPossibleValue cdmCriterionPossibleValue : cdmScenario
+							.getCdmCriterionPossibleValues()) {
+						if (cdmCriterionPossibleValue
+								.getCdmCriterion()
+								.getId()
+								.equals(actualCdmCriterionPossibleValue
+										.getCdmCriterion().getId())) {
+							supportedValues
+									.add("'"
+											+ cdmCriterionPossibleValue
+													.getName() + "'");
+						}
+						if (cdmCriterionPossibleValue.getId().equals(
+								actualCdmCriterionPossibleValue.getId())) {
+							criterionValueSupported = true;
+						}
+					}
+					if (!criterionValueSupported) {
+						ArrayList<String> supportedScenarios = new ArrayList<String>();
+						for (CDMScenario supportedCdmScenario : actualCdmCriterionPossibleValue
+								.getCdmScenarios()) {
+							boolean scenarioAlreadySelected = false;
+							for (CDMScenario actualCdmScenario : project
+									.getCdmScenarios()) {
+								if (actualCdmScenario.getId().equals(
+										supportedCdmScenario.getId())) {
+									scenarioAlreadySelected = true;
+								}
+							}
+							if (scenarioAlreadySelected) {
+								supportedScenarios.add("'<strong>"
+										+ supportedCdmScenario.getName()
+										+ "</strong>'");
+							} else {
+								supportedScenarios.add("'"
+										+ supportedCdmScenario.getName() + "'");
+							}
+						}
+						numberOfConflicts++;
+		%><div class="control-group">
+			<label class="control-label"><strong>Conflict: The
+					scenario '<%=cdmScenario.getName()%>' does not support '<%=actualCdmCriterionPossibleValue.getName()%>'
+					for '<%=actualCdmCriterionPossibleValue
+								.getCdmCriterion().getName()%>'.
+			</strong> </label>
+			<div class="controls" style="margin-left: 1em;">
+				<label class="checkbox" style="padding-left: 0"><strong>Possible
+						Solution</strong>: <em>Change migration scenario.</em>. The scenario '<%=cdmScenario.getName()%>'
+					supports <%
+					if (supportedValues.isEmpty()) {
+				%>no values<%
+					} else {
+				%><%=Arrays
+									.toString(supportedValues.toArray())
+									.replace('[', ' ').replace(']', ' ')%>
+					<%
+						}
+					%> for the criterion '<%=actualCdmCriterionPossibleValue
+								.getCdmCriterion().getName()%>'.</label> <label class="checkbox"
+					style="padding-left: 0"><strong>Possible Solution</strong>:
+					<em>Change migration strategy</em>. The value '<%=actualCdmCriterionPossibleValue.getName()%>'
+					for criterion '<%=actualCdmCriterionPossibleValue
+								.getCdmCriterion().getName()%>' is supported by the scenarios <%=Arrays.toString(supportedScenarios.toArray())
+								.replace('[', ' ').replace(']', ' ')%>.</label>
+			</div>
+		</div>
+		<%
+			}
+				}
+			}
+			if (numberOfConflicts == 0) {
+		%><div class="control-group">
+			<p class="alert alert-info">Great, there seem to be now conflicts
+				in your Clout data migration strategy.</p>
+		</div>
+		<%
 			}
 		%>
 	</fieldset>
