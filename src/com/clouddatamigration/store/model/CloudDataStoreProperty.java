@@ -143,6 +143,38 @@ public class CloudDataStoreProperty extends
 		}
 	}
 
+	/**
+	 * Returns the cloud data hosting solutions connected to the cloud data
+	 * store id
+	 * 
+	 * @param cdsId
+	 * @return
+	 */
+	public Collection<CloudDataStoreProperty> findAllByCDSId(String cdsId) {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		pm.getFetchPlan().setMaxFetchDepth(-3);
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			Query query = pm.newQuery(CloudDataStoreProperty.class,
+					"cloudDataStore == cloudDataStoreParameter");
+			query.declareParameters("String cloudDataStoreParameter");
+			query.setOrdering("cdhsCriterionPossibleValue.cdhsCriterion.cdhsCategory.orderNumber ASC, cdhsCriterionPossibleValue.cdhsCriterion.orderNumber ASC, cdhsCriterionPossibleValue.orderNumber ASC");
+			@SuppressWarnings("unchecked")
+			Collection<CloudDataStoreProperty> cloudDataStoreProperties = (Collection<CloudDataStoreProperty>) query
+					.execute(cdsId);
+			cloudDataStoreProperties = pm
+					.detachCopyAll(cloudDataStoreProperties);
+			tx.commit();
+			return cloudDataStoreProperties;
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			pm.close();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return cloudDataStore.getName() + " - "

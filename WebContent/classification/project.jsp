@@ -1,3 +1,5 @@
+<%@page
+	import="com.clouddatamigration.classification.model.CDHSCriterion.SelectionType"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.util.Set"%>
 <%@page
@@ -82,25 +84,32 @@
 				href="/classification/set-migration-scenario.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
+
+		<%
+			int scenarioNumber = 0;
+			for (CDMScenario cdmScenario : project.getCdmScenarios()) {
+				scenarioNumber++;
+		%>
 		<div class="control-group">
-			<%
-				int scenarioNumber = 1;
-				for (CDMScenario cdmScenario : project.getCdmScenarios()) {
-			%>
 			<label class="control-label">Scenario #<%=scenarioNumber%></label>
 			<div class="controls">
 				<label class="checkbox inline"><input type="checkbox"
 					id="optionsCheckbox" checked="checked" disabled="disabled"><%=cdmScenario.getName()%></label>
 				<p class="help-block" style="margin-top: 0.2em; margin-bottom: 1em;"><%=cdmScenario.getDescription()%></p>
 			</div>
-			<%
-				scenarioNumber++;
-				}
-			%>
 		</div>
+		<%
+			}
+			if (scenarioNumber == 0) {
+		%><div class="control-group">
+			<p class="alert alert-info">First select your Cloud data
+				migration scenario.</p>
+		</div>
+		<%
+			}
+		%>
+
 	</fieldset>
-</form>
-<form class="form-horizontal">
 	<fieldset>
 		<legend>
 			Step 1b: Refine Cloud Data Migration Strategy <a
@@ -163,10 +172,18 @@
 				lastCriterion = cdmCriterionPossibleValue.getCdmCriterion()
 						.getId();
 			}
+
+			if (lastCriterion.isEmpty()) {
+		%><div class="control-group">
+			<p class="alert alert-info">After determining your high level
+				Cloud data migration scenario you can specify some details of your
+				migration strategy in order to find out if there are any potential
+				conflicts.</p>
+		</div>
+		<%
+			}
 		%>
 	</fieldset>
-</form>
-<form class="">
 	<fieldset>
 		<legend> Step 1c: Identify Potential Migration Strategy
 			Conflicts </legend>
@@ -216,31 +233,43 @@
 							}
 						}
 						numberOfConflicts++;
-		%><div class="control-group">
-			<label class="control-label"><strong>Conflict: The
-					scenario '<%=cdmScenario.getName()%>' does not support '<%=actualCdmCriterionPossibleValue.getName()%>'
+		%><div class="control-group" style="margin-bottom: 0">
+			<label class="control-label">Conflict #<%=numberOfConflicts%></label>
+			<div class="controls">
+				<label class="checkbox" style="padding-left: 0">The scenario
+					'<%=cdmScenario.getName()%>' does not support '<%=actualCdmCriterionPossibleValue.getName()%>'
 					for '<%=actualCdmCriterionPossibleValue
 								.getCdmCriterion().getName()%>'.
-			</strong> </label>
-			<div class="controls" style="margin-left: 1em;">
-				<label class="checkbox" style="padding-left: 0"><strong>Possible
-						Solution</strong>: <em>Change migration scenario.</em>. The scenario '<%=cdmScenario.getName()%>'
+				</label>
+			</div>
+		</div>
+		<div class="control-group" style="margin-bottom: 0">
+			<label class="control-label">Possible Solution #<%=numberOfConflicts%>.1
+			</label>
+			<div class="controls">
+				<label class="checkbox" style="padding-left: 0"><em>Change
+						migration scenario</em>. The scenario '<%=cdmScenario.getName()%>'
 					supports <%
 					if (supportedValues.isEmpty()) {
 				%>no values<%
 					} else {
 				%><%=Arrays
 									.toString(supportedValues.toArray())
-									.replace('[', ' ').replace(']', ' ')%>
-					<%
-						}
-					%> for the criterion '<%=actualCdmCriterionPossibleValue
-								.getCdmCriterion().getName()%>'.</label> <label class="checkbox"
-					style="padding-left: 0"><strong>Possible Solution</strong>:
-					<em>Change migration strategy</em>. The value '<%=actualCdmCriterionPossibleValue.getName()%>'
+									.replace('[', ' ').replace(']', ' ')%> <%
+ 	}
+ %> for the criterion '<%=actualCdmCriterionPossibleValue
+								.getCdmCriterion().getName()%>'.</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Possible Solution #<%=numberOfConflicts%>.2
+			</label>
+			<div class="controls">
+				<label class="checkbox" style="padding-left: 0"> <em>Change
+						migration strategy</em>: The value '<%=actualCdmCriterionPossibleValue.getName()%>'
 					for criterion '<%=actualCdmCriterionPossibleValue
 								.getCdmCriterion().getName()%>' is supported by the scenarios <%=Arrays.toString(supportedScenarios.toArray())
-								.replace('[', ' ').replace(']', ' ')%>.</label>
+								.replace('[', ' ').replace(']', '.')%></label>
 			</div>
 		</div>
 		<%
@@ -256,13 +285,11 @@
 			}
 		%>
 	</fieldset>
-</form>
-<form class="form-horizontal">
 	<fieldset>
 		<legend id="step2">
 			Step 2: Describe Desired Cloud Data Hosting Solution <a
 				class="btn btn-small" style="float: right"
-				href="/classification/cloud-data-hosting-solution-edit.jsp?<%=project.getId()%>">Edit
+				href="/classification/set-cloud-data-hosting-solution.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
 		<br />
@@ -304,7 +331,14 @@
 												.getCdhsCriterion().getId());
 						for (CDHSCriterionPossibleValue possibleValue : possibleValues) {
 				%>
-				<label class="checkbox inline"> <input type="checkbox"
+				<label
+					class="<%=possibleValue.getCdhsCriterion()
+							.getSelectionType() == SelectionType.SINGLE ? "radio"
+							: "checkbox"%> inline">
+					<input
+					type="<%=possibleValue.getCdhsCriterion()
+							.getSelectionType() == SelectionType.SINGLE ? "radio"
+							: "checkbox"%>"
 					id="optionsCheckbox" value="<%=possibleValue.getId()%>"
 					<%boolean checked = false;
 					String inputValue = "";
@@ -351,17 +385,27 @@
 						.getCdhsCriterionPossibleValue().getCdhsCriterion()
 						.getCdhsCategory().getId();
 			}
+
+			if (lastCategory.isEmpty()) {
+		%><div class="control-group">
+			<p class="alert alert-info">When you describe the requirements
+				for a Cloud data hosting solution you can laster select from a
+				number of Cloud data stores that match your requirements.</p>
+		</div>
+		<%
+			}
 		%>
 	</fieldset>
-</form>
-<form class="form-horizontal">
 	<fieldset>
 		<legend id="step3">
 			Step 3: Select Cloud Data Store <a class="btn btn-small"
 				style="float: right"
-				href="/classification/data-store-edit.jsp?<%=project.getId()%>">Edit
+				href="/classification/set-cloud-data-store.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
+		<%
+			if (project.getCloudDataStore() != null) {
+		%>
 		<div class="control-group">
 			<label class="control-label">Name</label>
 			<div class="controls">
@@ -387,14 +431,23 @@
 					href="<%=project.getCloudDataStore().getWebsite()%>"><%=project.getCloudDataStore().getWebsite()%></a></label>
 			</div>
 		</div>
+		<%
+			} else {
+		%>
+		<div class="control-group">
+			<p class="alert alert-info">After you defined your desired Cloud
+				data hosting solution you can select from a number of Cloud data
+				stores that match your requirements.</p>
+		</div>
+		<%
+			}
+		%>
 	</fieldset>
-</form>
-<form class="">
 	<fieldset>
 		<legend id="step4">
 			Step 4a: Describe Local Data Layer <a class="btn btn-small"
 				style="float: right"
-				href="/classification/local-data-layer-description-edit.jsp?<%=project.getId()%>">Edit
+				href="/classification/set-local-database-layer.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
 		<br />
@@ -423,12 +476,13 @@
 			if (!properties.get(0).getLocalDBLCriterionPossibleValue()
 						.getLocalDBLCriterion().getId().equals(lastCriterion)) {
 		%>
-		<label><%=properties.get(0)
+		<label style="margin-left: 20px;"><%=properties.get(0)
 							.getLocalDBLCriterionPossibleValue()
 							.getLocalDBLCriterion().getName()%></label>
 		<%
 			}
-		%><div class="controls" style="margin-left: 1em; margin-bottom: 1em;">
+		%>
+		<div class="controls" style="margin-left: 40px; margin-bottom: 1em;">
 			<%
 				Collection<LocalDBLCriterionPossibleValue> possibleValues = properties
 							.get(0)
@@ -458,13 +512,6 @@
 			%>
 		</div>
 		<%
-			if (!properties.get(0).getLocalDBLCriterionPossibleValue()
-						.getLocalDBLCriterion().getId().equals(lastCriterion)) {
-		%>
-		<%
-			}
-		%>
-		<%
 			lastCriterion = properties.get(0)
 						.getLocalDBLCriterionPossibleValue()
 						.getLocalDBLCriterion().getId();
@@ -472,10 +519,17 @@
 						.getLocalDBLCriterionPossibleValue()
 						.getLocalDBLCriterion().getLocalDBLCategory().getId();
 			}
+
+			if (localDBLProperties.size() == 0) {
+		%><div class="control-group">
+			<p class="alert alert-info">When you describe your current data
+				layer we can identify potential patterns and solutions that help you
+				during your Cloud data migration.</p>
+		</div>
+		<%
+			}
 		%>
 	</fieldset>
-</form>
-<form class="">
 	<fieldset>
 		<legend>
 			Step 4b: Identify Patterns to Solve Potential Migration Conflicts<a
@@ -484,19 +538,23 @@
 				&raquo;</a>
 		</legend>
 		<%
+			int solutionNumber = 0;
 			Solution solutionService = new Solution();
 			for (Solution solution : solutionService
 					.getPossilbeSolutions(project.getId())) {
+				solutionNumber++;
 		%>
-		<div class="control-group">
-			<label class="control-label"><strong>Conflict: </strong> <%
+		<div class="control-group" style="margin-bottom: 0">
+			<label class="control-label">Conflict #<%=solutionNumber%></label>
+			<div class="controls">
+				<label class="checkbox" style="padding-left: 0"> <%
  	if (solution.getCdmCriterionPossibleValue1() != null
  				&& solution.getCdmCriterionPossibleValue2() == null
  				&& solution.getCdhsCriterionPossibleValue() == null
  				&& solution.getLocalDBLCriterionPossibleValue() == null) {
  %>You selected '<%=solution.getCdmCriterionPossibleValue1()
 							.getCdmCriterion().getName()%>' for the cloud data migration
-				criterion '<%=solution.getCdmCriterionPossibleValue1()
+					criterion '<%=solution.getCdmCriterionPossibleValue1()
 							.getName()%>'.<%
  	} else if (solution.getCdmCriterionPossibleValue1() != null
  				&& solution.getCdmCriterionPossibleValue2() != null
@@ -537,22 +595,32 @@
  %>You selected '<%=solution.getLocalDBLCriterionPossibleValue()
 							.getName()%>' for the local data base criterion '<%=solution.getLocalDBLCriterionPossibleValue()
 							.getLocalDBLCriterion().getName()%>' and your cloud data store
-				has '<%=solution.getCdhsCriterionPossibleValue()
+					has '<%=solution.getCdhsCriterionPossibleValue()
 							.getName()%>' selected for the criterion '<%=solution.getCdhsCriterionPossibleValue()
 							.getCdhsCriterion().getName()%>'.<%
  	}
- %> </label>
-			<div class="controls" style="margin-left: 1em;">
-				<label class="checkbox" style="padding-left: 0"><strong>Possible
-						Solution</strong>: <em><%=solution.getName()%></em>. <%=solution.getDescription()%></label>
+ %>
+				</label>
 			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Possible Solution #<%=solutionNumber%></label>
+			<div class="controls">
+				<label class="checkbox" style="padding-left: 0"><em><%=solution.getName()%></em>.
+					<%=solution.getDescription()%></label>
+			</div>
+		</div>
+		<%
+			}
+			if (solutionNumber == 0) {
+		%><div class="control-group">
+			<p class="alert alert-info">Good! Currently there are no patterns
+				or solutions for potential conflicts.</p>
 		</div>
 		<%
 			}
 		%>
 	</fieldset>
-</form>
-<form class="">
 	<fieldset>
 		<legend id="step5">
 			Step 5: Adapt Data Access Layer And Upper Application Layers<a
@@ -560,6 +628,11 @@
 				href="/classification/migration-conflicts-edit.jsp?<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
+		<div class="control-group">
+			<p class="alert alert-info">In the future you will find here
+				hints how to adapt your data access layer and upper application
+				layers.</p>
+		</div>
 	</fieldset>
 </form>
 <form class="">
@@ -570,6 +643,12 @@
 				href="/classification/migration-conflicts-edit.jsp?<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
+		<div class="control-group">
+			<p class="alert alert-info">In the future we will provide you a
+				step-by-step tutorial on how to migrate your data from your local
+				data store to your selected Cloud data store. In some scenarios we
+				can even do the migration for you!</p>
+		</div>
 	</fieldset>
 </form>
 <%@ include file="../common/footer.jsp"%>

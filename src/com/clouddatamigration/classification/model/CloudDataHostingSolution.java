@@ -143,6 +143,38 @@ public class CloudDataHostingSolution extends
 		}
 	}
 
+	/**
+	 * Returns the cloud data hosting solutions connected to the projectId
+	 * 
+	 * @param projectId
+	 * @return
+	 */
+	public Collection<CloudDataHostingSolution> findAllByProjectId(
+			String projectId) {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		pm.getFetchPlan().setMaxFetchDepth(-3);
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			Query query = pm.newQuery(CloudDataHostingSolution.class,
+					"project == projectParameter");
+			query.declareParameters("String projectParameter");
+			query.setOrdering("cdhsCriterionPossibleValue.cdhsCriterion.cdhsCategory.orderNumber ASC, cdhsCriterionPossibleValue.cdhsCriterion.orderNumber ASC, cdhsCriterionPossibleValue.orderNumber ASC");
+			@SuppressWarnings("unchecked")
+			Collection<CloudDataHostingSolution> cloudDataHostingSolutions = (Collection<CloudDataHostingSolution>) query
+					.execute(projectId);
+			cloudDataHostingSolutions = pm
+					.detachCopyAll(cloudDataHostingSolutions);
+			tx.commit();
+			return cloudDataHostingSolutions;
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			pm.close();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return cdhsCriterionPossibleValue.getCdhsCriterion().getCdhsCategory()

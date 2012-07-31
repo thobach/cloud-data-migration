@@ -63,4 +63,28 @@
 		<servlet-name>ProjectStrategyServlet</servlet-name>
 		<url-pattern>/classification/projectStrategy</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>ProjectCDHSServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectCDHSServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProjectCDHSServlet</servlet-name>
+		<url-pattern>/classification/projectCDHS</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ProjectCloudDataStoreServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectCloudDataStoreServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProjectCloudDataStoreServlet</servlet-name>
+		<url-pattern>/classification/projectCloudDataStore</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ProjectLocalDBLServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.classification.controller.ProjectLocalDBLServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProjectLocalDBLServlet</servlet-name>
+		<url-pattern>/classification/projectLocalDBL</url-pattern>
+	</servlet-mapping>
 </web-app>

@@ -119,6 +119,37 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 		}
 	}
 
+	/**
+	 * Returns the cloud data migration strategy connected to the project id
+	 * 
+	 * @param projectId
+	 * @return
+	 */
+	public Collection<LocalDBLProperty> findAllByProjectId(String projectId) {
+		PersistenceManager pm = pmf.getPersistenceManager();
+		pm.getFetchPlan().setMaxFetchDepth(-1);
+		Transaction tx = pm.currentTransaction();
+		try {
+			tx.begin();
+			Query query = pm.newQuery(LocalDBLProperty.class,
+					"project == projectParameter");
+			query.declareParameters("String projectParameter");
+			query.setOrdering("localDBLCriterionPossibleValue.localDBLCriterion.localDBLCategory.orderNumber ASC, localDBLCriterionPossibleValue.localDBLCriterion.orderNumber ASC, localDBLCriterionPossibleValue.orderNumber ASC");
+			@SuppressWarnings("unchecked")
+			Collection<LocalDBLProperty> localDblProperties = (Collection<LocalDBLProperty>) query
+					.execute(projectId);
+
+			localDblProperties = pm.detachCopyAll(localDblProperties);
+			tx.commit();
+			return localDblProperties;
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			pm.close();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return project.getName()
