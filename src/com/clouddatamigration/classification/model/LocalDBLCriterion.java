@@ -5,13 +5,17 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @PersistenceCapable(detachable = "true", table = "LocalDBLCriterion")
+@Entity
 public class LocalDBLCriterion extends AbstractModel<LocalDBLCriterion> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -22,6 +26,13 @@ public class LocalDBLCriterion extends AbstractModel<LocalDBLCriterion> {
 
 	@Persistent(defaultFetchGroup = "true", column = "LocalDBLCategory_id")
 	private LocalDBLCategory localDBLCategory;
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the name

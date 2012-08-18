@@ -3,10 +3,17 @@
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	id="WebApp_ID" version="3.0">
+
 	<display-name>cloud-data-migration-web</display-name>
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+
+	<listener>
+		<listener-class>com.clouddatamigration.CloudDataMigrationContextListener</listener-class>
+	</listener>
+
 	<servlet>
 		<servlet-name>SigninServlet</servlet-name>
 		<servlet-class>com.clouddatamigration.classification.controller.SigninServlet</servlet-class>
@@ -87,4 +94,26 @@
 		<servlet-name>ProjectLocalDBLServlet</servlet-name>
 		<url-pattern>/classification/projectLocalDBL</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>MigrationServlet</servlet-name>
+		<servlet-class>com.clouddatamigration.migration.controller.MigrationServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MigrationServlet</servlet-name>
+		<url-pattern>/migration/migration</url-pattern>
+	</servlet-mapping>
+
+	<!-- Google App Engine Remote API, needed for creating and importing data to datastore -->
+	<!--
+	<servlet>
+		<display-name>Remote API Servlet</display-name>
+		<servlet-name>RemoteApiServlet</servlet-name>
+		<servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RemoteApiServlet</servlet-name>
+		<url-pattern>/remote_api</url-pattern>
+	</servlet-mapping>
+	 -->
 </web-app>

@@ -3,11 +3,7 @@
 <%@page
 	import="com.clouddatamigration.classification.model.LocalDBLProperty"%>
 <%@page
-	import="com.clouddatamigration.classification.model.CDHSCriterion.SelectionType"%>
-<%@page
 	import="com.clouddatamigration.classification.model.CDHSCriterion"%>
-<%@page
-	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
 <%@page
 	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue"%>
 <%@page import="java.util.Collection"%>
@@ -81,7 +77,7 @@
 									.getPossibleValues(localDBLCriterionPossibleValue
 											.getLocalDBLCriterion().getId())) {
 				%>
-				<label class="checkbox inline"> <input type="checkbox"
+				<label class="radio inline"> <input type="radio"
 					name="<%=potentialLocalDBLCriterionPossibleValue
 								.getLocalDBLCriterion().getId()%>"
 					value="<%=potentialLocalDBLCriterionPossibleValue

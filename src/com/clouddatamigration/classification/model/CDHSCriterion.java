@@ -1,21 +1,25 @@
 package com.clouddatamigration.classification.model;
 
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import com.google.appengine.datanucleus.annotations.Unowned;
 
 @PersistenceCapable(detachable = "true", table = "CDHSCriterion")
+@Entity
 public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
-
-	public enum SelectionType {
-		SINGLE, MULTIPLE
-	}
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -35,7 +39,16 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 	private SelectionType selectionType;
 
 	@Persistent(defaultFetchGroup = "true", column = "CDHSCategory_id")
+	@Unowned
 	private CDHSCategory cdhsCategory;
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the key

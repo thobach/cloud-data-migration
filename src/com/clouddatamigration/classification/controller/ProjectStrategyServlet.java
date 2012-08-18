@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.clouddatamigration.classification.model.CDMCriterion;
 import com.clouddatamigration.classification.model.CDMCriterionPossibleValue;
 import com.clouddatamigration.classification.model.Project;
 
@@ -28,10 +29,17 @@ public class ProjectStrategyServlet extends HttpServlet {
 		}
 		Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
 		CDMCriterionPossibleValue cdmCriterionPossibleValueService = new CDMCriterionPossibleValue();
-		for (String cdmCriterionPossibleValue : req
-				.getParameterValues("cdmCriterionPossibleValue")) {
-			cdmCriterionPossibleValues.add(cdmCriterionPossibleValueService
-					.findByID(cdmCriterionPossibleValue));
+		CDMCriterion cdmCriterionService = new CDMCriterion();
+
+		for (CDMCriterion cdmCriterion : cdmCriterionService.findAll()) {
+			if (req.getParameterValues(cdmCriterion.getId()) != null) {
+				for (String cdmCriterionPossibleValue : req
+						.getParameterValues(cdmCriterion.getId())) {
+					cdmCriterionPossibleValues
+							.add(cdmCriterionPossibleValueService
+									.findByID(cdmCriterionPossibleValue));
+				}
+			}
 		}
 		project.setCdmCriterionPossibleValues(cdmCriterionPossibleValues);
 		project = project.save(project);

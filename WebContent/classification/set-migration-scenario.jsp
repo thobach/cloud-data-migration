@@ -27,7 +27,10 @@
 	action="/classification/projectScenarios">
 	<input type="hidden" name="id" value="<%=project.getId()%>" />
 	<fieldset>
-		<legend>Possible Cloud Data Migration Scenarios</legend>
+		<legend style="margin-bottom: 0.5em">Possible Cloud Data
+			Migration Scenarios</legend>
+		<p>Note: If your migration projects contains multiple scenarios,
+			please create one project per scenario.</p>
 		<div class="control-group">
 			<label class="control-label">Cloud Data Migration Scenario</label>
 			<%
@@ -43,12 +46,13 @@
 			%>
 
 			<div class="controls">
-				<label class="checkbox inline"><input type="checkbox"
-					name="cdmScenario" <%if (checked) {%> checked="checked" <%}%>
-					value="<%=cdmScenario.getId()%>"><%=cdmScenario.getName()%></label>
-				<p class="help-block" style="margin-top: 0.2em; margin-bottom: 1em;">
-					<i class="icon-info-sign" style="opacity: 0.5"></i>
-					<%=cdmScenario.getDescription()%></p>
+				<label class="radio inline" style="width: 100%;"><img
+					src="<%=cdmScenario.getImageLocation()%>"
+					style="background-color: white; padding: 1em; width: 650px; float: right; margin-left: 1em; margin-right: 1em; margin-bottom: 1em;"
+					class="thumbnail" /><input type="radio" name="cdmScenario"
+					<%if (checked) {%> checked="checked" <%}%>
+					value="<%=cdmScenario.getId()%>"><strong><%=cdmScenario.getName()%></strong><br />
+					<%=cdmScenario.getDescription()%></label>
 			</div>
 			<%
 				}

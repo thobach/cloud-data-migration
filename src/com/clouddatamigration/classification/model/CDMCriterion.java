@@ -5,13 +5,17 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @PersistenceCapable(detachable = "true", table = "CDMCriterion")
+@Entity
 public class CDMCriterion extends AbstractModel<CDMCriterion> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -20,8 +24,18 @@ public class CDMCriterion extends AbstractModel<CDMCriterion> {
 	@Persistent
 	private String name;
 
+	@Persistent(column = "selectionType")
+	private SelectionType selectionType;
+
 	@Persistent(column = "orderNumber")
 	private int orderNumber;
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the key
@@ -73,6 +87,21 @@ public class CDMCriterion extends AbstractModel<CDMCriterion> {
 	 */
 	public String getId() {
 		return id;
+	}
+
+	/**
+	 * @return the selectionType
+	 */
+	public SelectionType getSelectionType() {
+		return selectionType;
+	}
+
+	/**
+	 * @param selectionType
+	 *            the selectionType to set
+	 */
+	public void setSelectionType(SelectionType selectionType) {
+		this.selectionType = selectionType;
 	}
 
 	@Override

@@ -3,31 +3,33 @@ package com.clouddatamigration.classification.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+
+import com.google.appengine.datanucleus.annotations.Unowned;
 
 @PersistenceCapable(detachable = "true", table = "CDHSCriterionPossibleValue")
+@Entity
 public class CDHSCriterionPossibleValue extends
 		AbstractModel<CDHSCriterionPossibleValue> {
 
-	public enum Type {
-		SELECT, INPUT
-	}
-
-	public enum Scale {
-		NOT_COMPARABLE, UPPER_IS_BETTER, LOWER_IS_BETTER
-	}
-
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	@Column(jdbcType = "VARCHAR", length = 32)
 	private String id;
 
@@ -47,7 +49,16 @@ public class CDHSCriterionPossibleValue extends
 	private Scale scale;
 
 	@Persistent(defaultFetchGroup = "true", column = "CDHSCriterion_id")
+	@Unowned
 	private CDHSCriterion cdhsCriterion;
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the key
@@ -82,6 +93,7 @@ public class CDHSCriterionPossibleValue extends
 	/**
 	 * @return the type
 	 */
+	@Enumerated(EnumType.STRING)
 	public Type getType() {
 		return type;
 	}
@@ -112,6 +124,7 @@ public class CDHSCriterionPossibleValue extends
 	/**
 	 * @return the scale
 	 */
+	@Enumerated(EnumType.STRING)
 	public Scale getScale() {
 		return scale;
 	}
@@ -127,6 +140,7 @@ public class CDHSCriterionPossibleValue extends
 	/**
 	 * @return the id
 	 */
+	@Id
 	public String getId() {
 		return id;
 	}
@@ -184,42 +198,92 @@ public class CDHSCriterionPossibleValue extends
 	 */
 	public Map<String, ArrayList<CDHSCriterionPossibleValue>> findAllGrouped() {
 		Map<String, ArrayList<CDHSCriterionPossibleValue>> cdhsCriterionPossibleValueMap = new LinkedHashMap<String, ArrayList<CDHSCriterionPossibleValue>>();
-		PersistenceManager pm = pmf.getPersistenceManager();
-		pm.getFetchPlan().setMaxFetchDepth(-1);
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(CDHSCriterionPossibleValue.class);
-			query.setOrdering("cdhsCriterion.cdhsCategory.orderNumber ASC, cdhsCriterion.orderNumber ASC, orderNumber ASC");
+		if (useJpa) {
+			javax.persistence.Query query = em
+					.createQuery("select o from "
+							+ persistentClass.getName()
+							+ " o where o.orderNumber is not null order by o.orderNumber ASC");
+			// o.cdhsCriterion.cdhsCategory.orderNumber is not null &&
+			// o.cdhsCriterion.orderNumber is not null &&
+			// o.cdhsCriterion.cdhsCategory.orderNumber ASC,
+			// o.cdhsCriterion.orderNumber ASC,
 			@SuppressWarnings("unchecked")
-			Collection<CDHSCriterionPossibleValue> cdhsCriterionPossibleValues = (Collection<CDHSCriterionPossibleValue>) query
-					.execute();
-			cdhsCriterionPossibleValues = pm
-					.detachCopyAll(cdhsCriterionPossibleValues);
-
-			for (CDHSCriterionPossibleValue cdhsCriterionPossibleValue : cdhsCriterionPossibleValues) {
-				if (cdhsCriterionPossibleValueMap
-						.containsKey(cdhsCriterionPossibleValue
-								.getCdhsCriterion().getKey())) {
-					cdhsCriterionPossibleValueMap.get(
-							cdhsCriterionPossibleValue.getCdhsCriterion()
-									.getKey()).add(cdhsCriterionPossibleValue);
-				} else {
-					ArrayList<CDHSCriterionPossibleValue> properties = new ArrayList<CDHSCriterionPossibleValue>();
-					properties.add(cdhsCriterionPossibleValue);
-					cdhsCriterionPossibleValueMap.put(
-							cdhsCriterionPossibleValue.getCdhsCriterion()
-									.getKey(), properties);
+			List<CDHSCriterionPossibleValue> obs = (List<CDHSCriterionPossibleValue>) query
+					.getResultList();
+			if (obs.size() > 0) {
+				for (CDHSCriterionPossibleValue cdhsCriterionPossibleValue : obs) {
+					if (cdhsCriterionPossibleValueMap
+							.containsKey(cdhsCriterionPossibleValue
+									.getCdhsCriterion().getKey())) {
+						cdhsCriterionPossibleValueMap.get(
+								cdhsCriterionPossibleValue.getCdhsCriterion()
+										.getKey()).add(
+								cdhsCriterionPossibleValue);
+					} else {
+						ArrayList<CDHSCriterionPossibleValue> properties = new ArrayList<CDHSCriterionPossibleValue>();
+						properties.add(cdhsCriterionPossibleValue);
+						cdhsCriterionPossibleValueMap.put(
+								cdhsCriterionPossibleValue.getCdhsCriterion()
+										.getKey(), properties);
+					}
 				}
+			} else {
+				return cdhsCriterionPossibleValueMap;
 			}
-
-			tx.commit();
 			return cdhsCriterionPossibleValueMap;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		} else {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			pm.getFetchPlan().setMaxFetchDepth(-1);
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(CDHSCriterionPossibleValue.class);
+				if (useGAE) {
+					query.setOrdering("orderNumber ASC");
+				} else {
+					query.setOrdering("cdhsCriterion.cdhsCategory.orderNumber ASC, cdhsCriterion.orderNumber ASC, orderNumber ASC");
+				}
+				@SuppressWarnings("unchecked")
+				Collection<CDHSCriterionPossibleValue> cdhsCriterionPossibleValues = (Collection<CDHSCriterionPossibleValue>) query
+						.execute();
+				cdhsCriterionPossibleValues = pm
+						.detachCopyAll(cdhsCriterionPossibleValues);
+
+				for (CDHSCriterionPossibleValue cdhsCriterionPossibleValue : cdhsCriterionPossibleValues) {
+					CDHSCriterion cdhsCriterion;
+
+					// seems GAE does not detach the child objects
+					if (useGAE) {
+						cdhsCriterionPossibleValue = pm.detachCopy(cdhsCriterionPossibleValue);
+						cdhsCriterion = pm
+								.detachCopy(cdhsCriterionPossibleValue
+										.getCdhsCriterion());
+					} else {
+						cdhsCriterion = cdhsCriterionPossibleValue
+								.getCdhsCriterion();
+					}
+
+					if (cdhsCriterionPossibleValueMap.containsKey(cdhsCriterion
+							.getKey())) {
+						cdhsCriterionPossibleValueMap.get(
+								cdhsCriterion.getKey()).add(
+								cdhsCriterionPossibleValue);
+					} else {
+						ArrayList<CDHSCriterionPossibleValue> properties = new ArrayList<CDHSCriterionPossibleValue>();
+						properties.add(cdhsCriterionPossibleValue);
+						cdhsCriterionPossibleValueMap.put(
+								cdhsCriterion.getKey(), properties);
+					}
+				}
+
+				tx.commit();
+				return cdhsCriterionPossibleValueMap;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
 			}
-			pm.close();
 		}
 	}
 

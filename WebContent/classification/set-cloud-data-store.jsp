@@ -104,40 +104,52 @@
 								// conflicts
 								if (!foundMatch) {
 									String actualCDSValuesString = "";
-									for (CloudDataStoreProperty actualCloudDataStoreProperty : actualCDSValues
-											.get(cloudDataHostingSolution
-													.getCdhsCriterionPossibleValue()
-													.getCdhsCriterion().getKey())) {
-										actualCDSValuesString += actualCloudDataStoreProperty
-												.getCdhsCriterionPossibleValue().getName()
-												+ (actualCloudDataStoreProperty
-														.getInputValue() != null
-														&& !actualCloudDataStoreProperty
-																.getInputValue().isEmpty() ? " ("
-														+ actualCloudDataStoreProperty
-																.getInputValue() + ")"
-														: "") + ", ";
-									}
-									conflicts.add(cloudDataHostingSolution
+									if (actualCDSValues.get(cloudDataHostingSolution
 											.getCdhsCriterionPossibleValue()
-											.getCdhsCriterion().getCdhsCategory().getName()
-											+ " - "
-											+ cloudDataHostingSolution
-													.getCdhsCriterionPossibleValue()
-													.getCdhsCriterion().getName()
-											+ ": <em>"
-											+ cloudDataHostingSolution
+											.getCdhsCriterion().getKey()) != null) {
+										for (CloudDataStoreProperty actualCloudDataStoreProperty : actualCDSValues
+												.get(cloudDataHostingSolution
+														.getCdhsCriterionPossibleValue()
+														.getCdhsCriterion().getKey())) {
+											actualCDSValuesString += actualCloudDataStoreProperty
 													.getCdhsCriterionPossibleValue()
 													.getName()
-											+ (cloudDataHostingSolution.getValue() != null
-													&& !cloudDataHostingSolution.getValue()
-															.isEmpty() ? " ("
-													+ cloudDataHostingSolution.getValue()
-													+ ")" : "")
-											+ "</em> - "
-											+ cloudDataStore.getName()
-											+ " has: <em>"
-											+ actualCDSValuesString + "</em>");
+													+ (actualCloudDataStoreProperty
+															.getInputValue() != null
+															&& !actualCloudDataStoreProperty
+																	.getInputValue()
+																	.isEmpty() ? " ("
+															+ actualCloudDataStoreProperty
+																	.getInputValue() + ")"
+															: "") + ", ";
+										}
+										conflicts
+												.add(cloudDataHostingSolution
+														.getCdhsCriterionPossibleValue()
+														.getCdhsCriterion()
+														.getCdhsCategory().getName()
+														+ " - "
+														+ cloudDataHostingSolution
+																.getCdhsCriterionPossibleValue()
+																.getCdhsCriterion()
+																.getName()
+														+ ": <em>"
+														+ cloudDataHostingSolution
+																.getCdhsCriterionPossibleValue()
+																.getName()
+														+ (cloudDataHostingSolution
+																.getValue() != null
+																&& !cloudDataHostingSolution
+																		.getValue()
+																		.isEmpty() ? " ("
+																+ cloudDataHostingSolution
+																		.getValue() + ")"
+																: "")
+														+ "</em> - "
+														+ cloudDataStore.getName()
+														+ " has: <em>"
+														+ actualCDSValuesString + "</em>");
+									}
 								}
 							}
 
@@ -186,8 +198,13 @@
 						your requirements:</strong>
 					<ul>
 						<%
-							for (String match : matches) {
+							if (matches.size() > 0) {
+									for (String match : matches) {
 						%><li><%=match%></li>
+						<%
+							}
+								} else {
+						%><li>none</li>
 						<%
 							}
 						%>
@@ -196,22 +213,35 @@
 						matched:</strong>
 					<ul>
 						<%
-							for (String conflict : conflicts) {
+							if (conflicts.size() > 0) {
+									for (String conflict : conflicts) {
 						%><li><%=conflict%></li>
+						<%
+							}
+								} else {
+						%><li>none</li>
 						<%
 							}
 						%>
 					</ul>
 					<strong><%=cloudDataStore.getName()%> provides
-						additionally:</strong>
-					<ul>
-						<%
-							for (String additional : additionals) {
-						%><li><%=additional%></li>
-						<%
-							}
-						%>
-					</ul>
+						additionally:</strong> <a href="#"
+						onclick="if(this.innerHTML=='show'){$('#showAdditional').removeClass('hide'); this.innerHTML='hide';} else {$('#showAdditional').addClass('hide'); this.innerHTML='show';}">show</a>
+					<div class="hide" id="showAdditional">
+						<ul>
+							<%
+								if (additionals.size() > 0) {
+										for (String additional : additionals) {
+							%><li><%=additional%></li>
+							<%
+								}
+									} else {
+							%><li>none</li>
+							<%
+								}
+							%>
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -13,20 +13,31 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @PersistenceCapable(detachable = "true", table = "LocalDBLProperty")
+@Entity
 public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent(defaultFetchGroup = "true", column = "Project_id")
 	private Project project;
 
-	@Persistent(defaultFetchGroup = "true", column = "LocalDBLCriterionPossibleValue_id")
+	@Persistent(defaultFetchGroup = "true", column = "LocalDBLCriterionPossibleV_id")
 	private LocalDBLCriterionPossibleValue localDBLCriterionPossibleValue;
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the project

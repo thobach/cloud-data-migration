@@ -1,7 +1,5 @@
-<%@page
-	import="com.clouddatamigration.classification.model.CDHSCriterion.SelectionType"%>
-<%@page
-	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
+<%@page import="com.clouddatamigration.classification.model.Type"%>
+<%@page import="com.clouddatamigration.classification.model.SelectionType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page session="false"%>
@@ -109,7 +107,7 @@
 							: ""%>>
 					<%
 						out.print(possibleValue.getName());
-								if (possibleValue.getType() == CDHSCriterionPossibleValue.Type.INPUT) {
+								if (possibleValue.getType() == Type.INPUT) {
 					%>: <input name="<%=possibleValue.getId()%>-value"
 					value="<%=inputValue != null ? inputValue : ""%>"
 					disabled="disabled"

@@ -11,14 +11,18 @@ import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @PersistenceCapable(detachable = "true", table = "CDMScenario")
+@Entity
 public class CDMScenario extends AbstractModel<CDMScenario> implements
 		Comparable<CDMScenario> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -27,6 +31,9 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	@Persistent
 	@Column(jdbcType = "LONGVARCHAR")
 	private String description;
+
+	@Persistent
+	private String imageLocation;
 
 	@Persistent(column = "orderNumber")
 	private int orderNumber;
@@ -37,10 +44,22 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	@Persistent(mappedBy = "cdmScenarios")
 	private Set<Project> projects;
 
-	@Persistent(table = "CDMScenario_has_CDMCriterionPossibleValue", defaultFetchGroup = "true")
+	@Persistent(table = "CDMScenarioProperty", defaultFetchGroup = "true")
 	@Join(column = "CDMScenario_id")
 	@Element(column = "CDMCriterionPossibleValue_id")
 	private Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
+
+	@Persistent(table = "CDMScenarioImpact", defaultFetchGroup = "true")
+	@Join(column = "CDMScenario_id")
+	@Element(column = "Impact_id")
+	private Set<Impact> cdmImpacts = new TreeSet<Impact>();
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the name
@@ -131,6 +150,36 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	public void setCdmCriterionPossibleValues(
 			Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues) {
 		this.cdmCriterionPossibleValues = cdmCriterionPossibleValues;
+	}
+
+	/**
+	 * @return the cdmImpacts
+	 */
+	public Set<Impact> getCdmImpacts() {
+		return new TreeSet<Impact>(cdmImpacts);
+	}
+
+	/**
+	 * @param cdmImpacts
+	 *            the cdmImpacts to set
+	 */
+	public void setCdmImpacts(Set<Impact> cdmImpacts) {
+		this.cdmImpacts = cdmImpacts;
+	}
+
+	/**
+	 * @return the imageLocation
+	 */
+	public String getImageLocation() {
+		return imageLocation;
+	}
+
+	/**
+	 * @param imageLocation
+	 *            the imageLocation to set
+	 */
+	public void setImageLocation(String imageLocation) {
+		this.imageLocation = imageLocation;
 	}
 
 	@Override

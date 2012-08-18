@@ -3,24 +3,31 @@ package com.clouddatamigration.classification.model;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.servlet.http.Cookie;
 
 @PersistenceCapable(detachable = "true", table = "User")
+@Entity
 public class User extends AbstractModel<User> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -55,6 +62,14 @@ public class User extends AbstractModel<User> {
 	}
 
 	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	/**
 	 * @param username
 	 *            the username to set
 	 */
@@ -67,6 +82,22 @@ public class User extends AbstractModel<User> {
 	 */
 	public String getPasswordHash() {
 		return passwordHash;
+	}
+
+	/**
+	 * @param passwordHash
+	 *            the passwordHash to set
+	 */
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+
+	/**
+	 * @param updated
+	 *            the updated to set
+	 */
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 
 	/**
@@ -210,24 +241,42 @@ public class User extends AbstractModel<User> {
 	 * @return
 	 */
 	public User findByUsername(String username) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(User.class,
-					"username == usernameParameter");
-			query.declareParameters("String usernameParameter");
-			query.setUnique(true);
-			query.setRange(0, 1);
-			User user = (User) query.execute(username);
-			user = pm.detachCopy(user);
-			tx.commit();
-			return user;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		if (useJpa) {
+			if (sessionToken != null && !sessionToken.isEmpty()) {
+				javax.persistence.Query query = em.createQuery("select o from "
+						+ persistentClass.getName()
+						+ " o where o.username = :usernameParameter");
+				query.setParameter("usernameParameter", username);
+				@SuppressWarnings("unchecked")
+				List<User> obs = (List<User>) query.getResultList();
+				if (obs.size() > 0) {
+					return obs.get(0);
+				} else {
+					return null;
+				}
+			} else {
+				return null;
 			}
-			pm.close();
+		} else {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(User.class,
+						"username == usernameParameter");
+				query.declareParameters("String usernameParameter");
+				query.setUnique(true);
+				query.setRange(0, 1);
+				User user = (User) query.execute(username);
+				user = pm.detachCopy(user);
+				tx.commit();
+				return user;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
+			}
 		}
 	}
 
@@ -239,24 +288,44 @@ public class User extends AbstractModel<User> {
 	 * @return
 	 */
 	public User findBySessionToken(String sessionToken) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(User.class,
-					"sessionToken == sessionTokenParameter");
-			query.declareParameters("String sessionTokenParameter");
-			query.setUnique(true);
-			query.setRange(0, 1);
-			User user = (User) query.execute(sessionToken);
-			user = pm.detachCopy(user);
-			tx.commit();
-			return user;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		if (sessionToken != null && !sessionToken.isEmpty()) {
+			if (useJpa) {
+
+				javax.persistence.Query query = em.createQuery("select o from "
+						+ persistentClass.getName()
+						+ " o where o.sessionToken = :sessionTokenParameter");
+				query.setParameter("sessionTokenParameter", sessionToken);
+				@SuppressWarnings("unchecked")
+				List<User> obs = (List<User>) query.getResultList();
+				if (obs.size() > 0) {
+					return obs.get(0);
+				} else {
+					return null;
+				}
+
+			} else {
+				PersistenceManager pm = pmf.getPersistenceManager();
+				Transaction tx = pm.currentTransaction();
+				try {
+					tx.begin();
+					Query query = pm.newQuery(User.class,
+							"sessionToken == sessionTokenParameter");
+					query.declareParameters("String sessionTokenParameter");
+					query.setUnique(true);
+					query.setRange(0, 1);
+					User user = (User) query.execute(sessionToken);
+					user = pm.detachCopy(user);
+					tx.commit();
+					return user;
+				} finally {
+					if (tx.isActive()) {
+						tx.rollback();
+					}
+					pm.close();
+				}
 			}
-			pm.close();
+		} else {
+			return null;
 		}
 	}
 

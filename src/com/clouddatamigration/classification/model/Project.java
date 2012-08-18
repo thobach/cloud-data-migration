@@ -16,6 +16,8 @@ import javax.jdo.annotations.NullValue;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
@@ -23,11 +25,13 @@ import org.jsoup.safety.Whitelist;
 import com.clouddatamigration.store.model.CloudDataStore;
 
 @PersistenceCapable(detachable = "true", table = "Project")
+@Entity
 public class Project extends AbstractModel<Project> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent(nullValue = NullValue.EXCEPTION)
@@ -64,6 +68,13 @@ public class Project extends AbstractModel<Project> {
 	@Join(column = "Project_id")
 	@Element(column = "CDMCriterionPossibleValue_id")
 	private Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the name

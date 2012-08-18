@@ -3,10 +3,13 @@ package com.clouddatamigration.store.model;
 import java.util.Date;
 
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
@@ -14,11 +17,14 @@ import org.jsoup.safety.Whitelist;
 import com.clouddatamigration.classification.model.AbstractModel;
 
 @PersistenceCapable(detachable = "true")
+@Entity
 public class CloudDataStore extends AbstractModel<CloudDataStore> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
+	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -39,6 +45,30 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 
 	@Persistent
 	private Date updated;
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param created
+	 *            the created to set
+	 */
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	/**
+	 * @param updated
+	 *            the updated to set
+	 */
+	public void setUpdated(Date updated) {
+		this.updated = updated;
+	}
 
 	/**
 	 * @return the name

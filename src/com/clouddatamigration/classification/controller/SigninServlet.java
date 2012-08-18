@@ -27,7 +27,7 @@ public class SigninServlet extends HttpServlet {
 		user = user.findByUsername(req.getParameter("username"));
 
 		// login new user and redirect to project list
-		if (user.login(req.getParameter("password"))) {
+		if (user != null && user.login(req.getParameter("password"))) {
 			Date expdate = new Date();
 			expdate.setTime(expdate.getTime() + (24 * 3600 * 1000));
 			DateFormat df = new SimpleDateFormat("dd MMM yyyy kk:mm:ss z");

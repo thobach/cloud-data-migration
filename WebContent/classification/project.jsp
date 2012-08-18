@@ -1,9 +1,12 @@
+<%@page import="com.clouddatamigration.classification.model.Type"%>
+<%@page import="com.clouddatamigration.classification.model.Impact"%>
 <%@page
-	import="com.clouddatamigration.classification.model.CDHSCriterion.SelectionType"%>
+	import="com.clouddatamigration.classification.model.SelectionType"%>
+<%@page
+	import="com.clouddatamigration.CloudDataMigrationContextListener"%>
+<%@page import="com.clouddatamigration.migration.model.MigrationService"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.util.Set"%>
-<%@page
-	import="com.clouddatamigration.classification.model.CDHSCriterionPossibleValue.Type"%>
 <%@page import="com.clouddatamigration.classification.model.Solution"%>
 <%@page
 	import="com.clouddatamigration.classification.model.LocalDBLCriterionPossibleValue"%>
@@ -36,7 +39,8 @@
 	user = user.findBySessionToken(sessionToken);
 	if (sessionToken == null || user == null) {
 		response.setStatus(HttpServletResponse.SC_SEE_OTHER);
-		response.setHeader("Location", "index.jsp?error=sessionTimeout");
+		response.setHeader("Location",
+				"/index.jsp?error=sessionTimeout");
 		return;
 	}
 %>
@@ -78,29 +82,26 @@
 			to the selected Cloud data store</a>
 	</p>
 	<fieldset>
-		<legend id="step1">
+		<legend id="step1" style="margin-bottom: 0;">
 			Step 1a: Select Migration Scenario <a class="btn btn-small"
 				style="float: right"
 				href="/classification/set-migration-scenario.jsp?id=<%=project.getId()%>">Edit
 				&raquo;</a>
 		</legend>
-
 		<%
-			int scenarioNumber = 0;
 			for (CDMScenario cdmScenario : project.getCdmScenarios()) {
-				scenarioNumber++;
 		%>
 		<div class="control-group">
-			<label class="control-label">Scenario #<%=scenarioNumber%></label>
+			<label class="control-label">Scenario</label>
 			<div class="controls">
-				<label class="checkbox inline"><input type="checkbox"
+				<label class="radio inline"><input type="radio"
 					id="optionsCheckbox" checked="checked" disabled="disabled"><%=cdmScenario.getName()%></label>
 				<p class="help-block" style="margin-top: 0.2em; margin-bottom: 1em;"><%=cdmScenario.getDescription()%></p>
 			</div>
 		</div>
 		<%
 			}
-			if (scenarioNumber == 0) {
+			if (project.getCdmScenarios().size() == 0) {
 		%><div class="control-group">
 			<p class="alert alert-info">First select your Cloud data
 				migration scenario.</p>
@@ -111,7 +112,7 @@
 
 	</fieldset>
 	<fieldset>
-		<legend>
+		<legend style="margin-bottom: 0;">
 			Step 1b: Refine Cloud Data Migration Strategy <a
 				class="btn btn-small" style="float: right"
 				href="/classification/set-migration-strategy.jsp?id=<%=project.getId()%>">Edit
@@ -142,7 +143,14 @@
 											.getCdmCriterion().getId());
 							for (CDMCriterionPossibleValue possibleValue : possibleValues) {
 				%>
-				<label class="checkbox inline"> <input type="checkbox"
+				<label
+					class="<%=(possibleValue.getCdmCriterion()
+								.getSelectionType() == SelectionType.SINGLE ? "radio"
+								: "checkbox")%> inline">
+					<input
+					type="<%=(possibleValue.getCdmCriterion()
+								.getSelectionType() == SelectionType.SINGLE ? "radio"
+								: "checkbox")%>"
 					id="optionsCheckbox" value="<%=possibleValue.getId()%>"
 					<%boolean checked = false;
 						String inputValue = "";
@@ -185,8 +193,8 @@
 		%>
 	</fieldset>
 	<fieldset>
-		<legend> Step 1c: Identify Potential Migration Strategy
-			Conflicts </legend>
+		<legend style="margin-bottom: 0;"> Step 1c: Identify
+			Potential Migration Strategy Conflicts </legend>
 		<%
 			int numberOfConflicts = 0;
 			for (CDMScenario cdmScenario : project.getCdmScenarios()) {
@@ -286,7 +294,7 @@
 		%>
 	</fieldset>
 	<fieldset>
-		<legend id="step2">
+		<legend id="step2" style="margin-bottom: 0;">
 			Step 2: Describe Desired Cloud Data Hosting Solution <a
 				class="btn btn-small" style="float: right"
 				href="/classification/set-cloud-data-hosting-solution.jsp?id=<%=project.getId()%>">Edit
@@ -355,7 +363,7 @@
 							: ""%>>
 					<%
 						out.print(possibleValue.getName());
-								if (possibleValue.getType() == CDHSCriterionPossibleValue.Type.INPUT) {
+								if (possibleValue.getType() == Type.INPUT) {
 					%>: <input name="<%=possibleValue.getId()%>-value"
 					value="<%=inputValue != null ? inputValue : ""%>"
 					disabled="disabled" type="text"
@@ -397,7 +405,7 @@
 		%>
 	</fieldset>
 	<fieldset>
-		<legend id="step3">
+		<legend id="step3" style="margin-bottom: 0;">
 			Step 3: Select Cloud Data Store <a class="btn btn-small"
 				style="float: right"
 				href="/classification/set-cloud-data-store.jsp?id=<%=project.getId()%>">Edit
@@ -444,7 +452,7 @@
 		%>
 	</fieldset>
 	<fieldset>
-		<legend id="step4">
+		<legend id="step4" style="margin-bottom: 0;">
 			Step 4a: Describe Local Data Layer <a class="btn btn-small"
 				style="float: right"
 				href="/classification/set-local-database-layer.jsp?id=<%=project.getId()%>">Edit
@@ -531,12 +539,8 @@
 		%>
 	</fieldset>
 	<fieldset>
-		<legend>
-			Step 4b: Identify Patterns to Solve Potential Migration Conflicts<a
-				class="btn btn-small" style="float: right"
-				href="/classification/migration-conflicts-edit.jsp?<%=project.getId()%>">Edit
-				&raquo;</a>
-		</legend>
+		<legend style="margin-bottom: 0;"> Step 4b: Identify Patterns
+			to Solve Potential Migration Conflicts </legend>
 		<%
 			int solutionNumber = 0;
 			Solution solutionService = new Solution();
@@ -622,33 +626,142 @@
 		%>
 	</fieldset>
 	<fieldset>
-		<legend id="step5">
-			Step 5: Adapt Data Access Layer And Upper Application Layers<a
-				class="btn btn-small" style="float: right"
-				href="/classification/migration-conflicts-edit.jsp?<%=project.getId()%>">Edit
-				&raquo;</a>
-		</legend>
+		<legend id="step5" style="margin-bottom: 0;"> Step 5: Adapt
+			Data Access Layer And Upper Application Layers </legend>
+
+		<%
+			if (project.getCdmScenarios().size() == 0) {
+		%>
 		<div class="control-group">
-			<p class="alert alert-info">In the future you will find here
-				hints how to adapt your data access layer and upper application
-				layers.</p>
+			<p class="alert alert-info">If you select a migration scenario
+				you will see a list of impacts of the migration on the network, data
+				access and application logic layer.</p>
 		</div>
+		<%
+			} else {
+				String impactCategory = "";
+				for (CDMScenario cdmScenario : project.getCdmScenarios()) {
+					for (Impact impact : cdmScenario.getCdmImpacts()) {
+						if (!impactCategory.equals(impact.getImpactCategory()
+								.getName())) {
+		%>
+		<div class="control-group">
+		<p style="font-size: 1.2em;">
+			<strong><%=cdmScenario.getName() + " - "
+									+ impact.getImpactCategory().getName()%></strong>
+		</p>
+		</div>
+		<%
+			}
+		%>
+		<div class="control-group">
+			<label class="control-label"><%=impact.getName()%></label>
+			<div class="controls">
+				<label class="checkbox" style="padding-left: 0"><%=impact.getDescription()%></label>
+			</div>
+		</div>
+		<%
+			impactCategory = impact.getImpactCategory().getName();
+					}
+
+				}
+			}
+		%>
+
 	</fieldset>
 </form>
-<form class="">
+<form class="form-horizontal" action="/migration/migration"
+	method="POST" target="migrationIframeExport" id="migrationForm">
+	<input type="hidden" name="action" value="export" id="migrationAction" />
 	<fieldset>
-		<legend id="step6">
-			Step 6: Migrate Data to the Selected Cloud Data Store<a
-				class="btn btn-small" style="float: right"
-				href="/classification/migration-conflicts-edit.jsp?<%=project.getId()%>">Edit
-				&raquo;</a>
-		</legend>
+		<legend id="step6" style="margin-bottom: 0;"> Step 6: Migrate
+			Data to the Selected Cloud Data Store </legend>
 		<div class="control-group">
-			<p class="alert alert-info">In the future we will provide you a
-				step-by-step tutorial on how to migrate your data from your local
-				data store to your selected Cloud data store. In some scenarios we
-				can even do the migration for you!</p>
+			<%
+				MigrationService migrationService = (MigrationService) getServletContext()
+						.getAttribute(
+								CloudDataMigrationContextListener.MIGRATION_SERVICE);
+			%>
+			<label class="control-label">Source System</label>
+			<div class="controls">
+				<%
+					for (String sourceId : migrationService.getSourceIds()) {
+				%><label class="radio inline"> <input type="radio"
+					name="sourceSystemId" value="<%=sourceId%>"
+					onchange="$('.sourceSystem').addClass('hide'); $('#<%=sourceId%>').removeClass('hide');">
+					<%=sourceId%>
+				</label>
+				<p class="help-block" style="margin-bottom: 1.5em;"><%=migrationService.getSourceInstructions(sourceId)%></p>
+				<div class="form-inline hide sourceSystem" id="<%=sourceId%>">
+					<%
+						for (String connectionParam : migrationService
+									.getSourceConnectionParams(sourceId)) {
+					%>
+					<label for="<%=sourceId + "_" + connectionParam%>"
+						style="width: 140px; margin-bottom: 1.5em;"><%=connectionParam%>:</label>
+					<input id="<%=sourceId + "_" + connectionParam%>" type="text"
+						name="<%=sourceId + "_" + connectionParam%>" value="" /><br />
+					<%
+						}
+					%>
+				</div>
+				<%
+					}
+				%>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Target System</label>
+			<div class="controls">
+				<%
+					for (String targetId : migrationService.getTargetIds()) {
+				%><label class="radio inline"> <input type="radio"
+					name="targetSystemId" value="<%=targetId%>"
+					onchange="$('.targetSystem').addClass('hide'); $('#<%=targetId%>').removeClass('hide');">
+					<%=targetId%>
+				</label>
+				<p class="help-block" style="margin-bottom: 1.5em;"><%=migrationService.getTargetInstructions(targetId)%></p>
+				<div class="form-inline hide targetSystem" id="<%=targetId%>">
+					<%
+						for (String connectionParam : migrationService
+									.getTargetConnectionParams(targetId)) {
+					%>
+					<label for="<%=targetId + "_" + connectionParam%>"
+						style="width: 140px; margin-bottom: 1.5em;"><%=connectionParam%>:</label>
+					<input id="<%=targetId + "_" + connectionParam%>" type="text"
+						name="<%=targetId + "_" + connectionParam%>" value="" /><br />
+					<%
+						}
+					%>
+				</div>
+				<%
+					}
+				%>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Migration Log Export</label>
+			<div class="controls">
+				<iframe id="migrationIframeExport" name="migrationIframeExport"
+					src="/migration/logmsg.txt" style="width: 100%; height: 200px;"
+					onload="if(this.contentWindow.location.href.substr(-10)!='logmsg.txt') {$('#migrationAction')[0].value='import'; $('#migrationForm')[0].target='migrationIframeImport'; $('#migrationForm')[0].submit()}"></iframe>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Migration Log Import</label>
+			<div class="controls">
+				<iframe id="migrationIframeImport" name="migrationIframeImport"
+					src="/migration/logmsg.txt" style="width: 100%; height: 200px;"
+					onload="if(this.contentWindow.location.href.substr(-10)!='logmsg.txt') {$('#migrationAction')[0].value='export'; $('#migrationForm')[0].target='migrationIframeExport';}"></iframe>
+			</div>
 		</div>
 	</fieldset>
+	<div class="form-actions">
+		<a href="/classification/project.jsp?id=<%=project.getId()%>"
+			class="btn">Cancel</a>
+		<button type="submit" class="btn btn-primary"
+			onclick="$('#migrationIframeExport')[0].src='/migration/logmsg.txt'; $('#migrationIframeImport')[0].src='/migration/logmsg.txt'; return true;">Start
+			Migration &raquo;</button>
+	</div>
 </form>
 <%@ include file="../common/footer.jsp"%>

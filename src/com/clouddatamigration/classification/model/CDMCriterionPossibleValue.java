@@ -14,8 +14,11 @@ import javax.jdo.annotations.Join;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @PersistenceCapable(detachable = "true", table = "CDMCriterionPossibleValue")
+@Entity
 public class CDMCriterionPossibleValue extends
 		AbstractModel<CDMCriterionPossibleValue> implements
 		Comparable<CDMCriterionPossibleValue> {
@@ -23,6 +26,7 @@ public class CDMCriterionPossibleValue extends
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
 	@Column(jdbcType = "VARCHAR", length = 32)
+	@Id
 	private String id;
 
 	@Persistent
@@ -37,10 +41,17 @@ public class CDMCriterionPossibleValue extends
 	@Persistent(defaultFetchGroup = "true", column = "CDMCriterion_id")
 	private CDMCriterion cdmCriterion;
 
-	@Persistent(table = "CDMScenario_has_CDMCriterionPossibleValue", defaultFetchGroup = "true")
+	@Persistent(table = "CDMScenarioProperty", defaultFetchGroup = "true")
 	@Join(column = "CDMCriterionPossibleValue_id")
 	@Element(column = "CDMScenario_id")
 	private Set<CDMScenario> cdmScenarios = new TreeSet<CDMScenario>();
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the key

@@ -2,6 +2,11 @@
 <project name="cloud-data-migration-web" default="enhance-local" basedir=".">
 
 	<!-- DATANUCLEUS -->
+	<target name="datanucleusenhance-app-engine-v1" depends="compile" description="Performs JDO enhancement on compiled data classes.">
+		<enhance_war war="WebContent">
+		</enhance_war>
+	</target>
+
 	<target name="datanucleusenhance-app-engine" depends="compile" description="Performs JDO enhancement on compiled data classes.">
 		<enhance_war war="WebContent">
 			<args>
@@ -17,7 +22,7 @@
 		<fileset dir="lib-build" includes="*.jar" />
 	</path>
 
-	<target name="enhance-local" description="DataNucleus enhancement">
+	<target name="enhance-local" description="DataNucleus enhancement (JDO)">
 		<taskdef name="datanucleusenhancer" classpathref="enhancer.classpath" classname="org.datanucleus.enhancer.tools.EnhancerTask" />
 		<datanucleusenhancer classpathref="enhancer.classpath" failonerror="true" verbose="true">
 			<jvmarg line="-Dlog4j.configuration=file:WebContent/WEB-INF/classes/log4j.properties" />
@@ -27,8 +32,18 @@
 		</datanucleusenhancer>
 	</target>
 
+	<target name="enhance-local-jpa" description="DataNucleus enhancement (JPA)">
+		<taskdef name="datanucleusenhancer" classpathref="enhancer.classpath" classname="org.datanucleus.enhancer.tools.EnhancerTask" />
+		<datanucleusenhancer classpathref="enhancer.classpath" failonerror="true" verbose="true" api="jpa">
+			<jvmarg line="-Dlog4j.configuration=file:WebContent/WEB-INF/classes/log4j.properties" />
+			<fileset dir="WebContent/WEB-INF/classes">
+				<include name="**/model/*.class" />
+			</fileset>
+		</datanucleusenhancer>
+	</target>
+
 	<!-- LOCAL -->
-	<target name="copyjars-local" description="Copies the App Engine JARs to the WAR.">
+	<target name="copyjars-local" description="Copies the local JARs to the WAR.">
 		<delete>
 			<fileset dir="WebContent/WEB-INF/lib">
 				<include name="**/*.jar" />
@@ -43,6 +58,61 @@
 			</fileset>
 		</copy>
 		<copy todir="src" file="config-local/clouddatamigration.properties" overwrite="true" />
+	</target>
+
+	<!-- LOCAL ORACLE -->
+	<target name="copyjars-local-oracle" description="Copies the Oracle JARs to the WAR.">
+		<delete>
+			<fileset dir="WebContent/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</delete>
+		<copy todir="WebContent/WEB-INF/lib" flatten="true">
+			<fileset dir="lib-oracle">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="lib-web">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="src" file="config-oracle/clouddatamigration.properties" overwrite="true" />
+	</target>
+
+	<!-- LOCAL SQL Server -->
+	<target name="copyjars-local-sqlserver" description="Copies the SQL Server JARs to the WAR.">
+		<delete>
+			<fileset dir="WebContent/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</delete>
+		<copy todir="WebContent/WEB-INF/lib" flatten="true">
+			<fileset dir="lib-sqlserver">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="lib-web">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="src" file="config-sqlserver/clouddatamigration.properties" overwrite="true" />
+	</target>
+
+	<!-- LOCAL SimpleDB -->
+	<target name="copyjars-local-simpledb" description="Copies the SimpleDB JARs to the WAR.">
+		<delete>
+			<fileset dir="WebContent/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</delete>
+		<copy todir="WebContent/WEB-INF/lib" flatten="true">
+			<fileset dir="lib-simpledb">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="lib-web">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="src" file="config-simpledb/clouddatamigration.properties" overwrite="true" />
+		<copy todir="src" file="config-simpledb/simplejpa.properties" overwrite="true" />
 	</target>
 
 	<!-- APP ENGINE -->
@@ -70,22 +140,24 @@
 			</fileset>
 		</delete>
 		<copy todir="WebContent/WEB-INF/lib" flatten="true">
-			<!--
 			<fileset dir="lib-appengine">
 				<include name="**/*.jar" />
 			</fileset>
-			-->
+			<!--
 			<fileset dir="lib-appengine">
 				<include name="**/google_sql.jar" />
 			</fileset>
+			
 			<fileset dir="${sdk.dir}/lib/user">
 				<include name="**/appengine-api-1.0-sdk*.jar" />
 			</fileset>
+			-->
 			<fileset dir="${sdk.dir}/lib/opt/user">
-				<include name="appengine-api-labs/v1/*.jar" />
-				<include name="jsr107/v1/*.jar" />
+				<!--<include name="appengine-api-labs/v1/*.jar" />-->
+				<!--<include name="jsr107/v1/*.jar" />-->
 				<include name="datanucleus/v2/*.jar" />
 			</fileset>
+
 			<fileset dir="lib-web">
 				<include name="**/*.jar" />
 			</fileset>
@@ -106,8 +178,16 @@
 	<target name="runserver" depends="copyjars-app-engine, datanucleusenhance-app-engine" description="Starts the development server.">
 		<dev_appserver war="WebContent" port="8888">
 			<options>
-				<arg value="--jvm_flag=-Xdebug" />
-				<arg value="--jvm_flag=-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999" />
+				<!--
+				<arg value="\-\-jvm_flag=-Drdbms.server=local" />
+				<arg value="\-\-jvm_flag=-Drdbms.driver=com.mysql.jdbc.Driver" />
+				<arg value="\-\-jvm_flag=-Drdbms.url=jdbc:mysql://localhost:3306/clouddatamigration?user=newuser" />
+				-->
+				<!-- 
+				<arg value="\-\-jvm_flag=-Xdebug" />
+				<arg value="\-\-jvm_flag=-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999" />
+				-->
+				<arg value="--jvm_flag=-Ddatastore.default_high_rep_job_policy_unapplied_job_pct=20"/>
 			</options>
 		</dev_appserver>
 	</target>

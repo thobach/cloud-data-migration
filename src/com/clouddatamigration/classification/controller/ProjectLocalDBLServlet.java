@@ -1,17 +1,13 @@
 package com.clouddatamigration.classification.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.clouddatamigration.classification.model.CDHSCriterionPossibleValue;
-import com.clouddatamigration.classification.model.CloudDataHostingSolution;
 import com.clouddatamigration.classification.model.LocalDBLCriterionPossibleValue;
 import com.clouddatamigration.classification.model.LocalDBLProperty;
 import com.clouddatamigration.classification.model.Project;

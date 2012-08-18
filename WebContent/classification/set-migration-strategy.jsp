@@ -1,3 +1,4 @@
+<%@page import="com.clouddatamigration.classification.model.SelectionType"%>
 <%@page
 	import="com.clouddatamigration.classification.model.CDMCriterion"%>
 <%@page import="java.util.Set"%>
@@ -55,8 +56,15 @@
 								.getPossibleValues(cdmCriterion.getId());
 						for (CDMCriterionPossibleValue possibleValue : possibleValues) {
 				%>
-				<label class="checkbox inline"> <input type="checkbox"
-					name="cdmCriterionPossibleValue" value="<%=possibleValue.getId()%>"
+				<label
+					class="<%=(possibleValue.getCdmCriterion()
+							.getSelectionType() == SelectionType.SINGLE ? "radio"
+							: "checkbox")%> inline">
+					<input
+					type="<%=(possibleValue.getCdmCriterion()
+							.getSelectionType() == SelectionType.SINGLE ? "radio"
+							: "checkbox")%>"
+					name="<%=possibleValue.getCdmCriterion().getId()%>" value="<%=possibleValue.getId()%>"
 					<%boolean checked = false;
 					String inputValue = "";
 					for (CDMCriterionPossibleValue property : cdmStrategies) {
