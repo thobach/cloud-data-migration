@@ -11,6 +11,7 @@ import com.clouddatamigration.migration.targetadapter.AwsRdsMysqlTargetSystem;
 import com.clouddatamigration.migration.targetadapter.AwsRdsOracleTargetSystem;
 import com.clouddatamigration.migration.targetadapter.AwsRdsSqlServerTargetSystem;
 import com.clouddatamigration.migration.targetadapter.AwsSimpleDbTargetSystem;
+import com.clouddatamigration.migration.targetadapter.AzureSqlDatabaseTargetSystem;
 import com.clouddatamigration.migration.targetadapter.GoogleAppEngineDataStoreTargetSystem;
 import com.clouddatamigration.migration.targetadapter.GoogleCloudSQLTargetSystem;
 import com.clouddatamigration.migration.targetadapter.MysqlLocalTargetSystem;
@@ -39,6 +40,7 @@ public class CloudDataMigrationContextListener implements
 		migrationService.registerTarget(new AwsSimpleDbTargetSystem());
 		migrationService.registerTarget(new AwsEc2TargetSystem());
 		migrationService.registerTarget(new GoogleAppEngineDataStoreTargetSystem());
+		migrationService.registerTarget(new AzureSqlDatabaseTargetSystem());
 
 		servletContextEvent.getServletContext().setAttribute(MIGRATION_SERVICE,
 				migrationService);

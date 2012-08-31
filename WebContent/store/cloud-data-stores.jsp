@@ -55,7 +55,7 @@
 					CloudDataStore cloudDataStoreService = new CloudDataStore();
 					int count = 0;
 					for (CloudDataStore cloudDataStore : cloudDataStoreService
-							.findAll()) {
+							.findAll("name ASC")) {
 						CloudDataStoreProperty cloudDataStorePropertyService = new CloudDataStoreProperty();
 						Map<String, ArrayList<CloudDataStoreProperty>> cdhs = cloudDataStorePropertyService
 								.findAllByCDS(cloudDataStore.getId());
