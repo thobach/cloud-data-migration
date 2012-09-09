@@ -22,8 +22,8 @@ public class SignupServlet extends HttpServlet {
 		// create new user
 		User user = new User();
 		user.setEmail(req.getParameter("email"));
-		// user.setUsername(req.getParameter("username"));
-		user.setUsername(req.getParameter("email"));
+		user.setUsername(req.getParameter("username"));
+		// user.setUsername(req.getParameter("email"));
 		user.setVerified(false);
 
 		// persist new user
@@ -31,19 +31,19 @@ public class SignupServlet extends HttpServlet {
 
 		// set password after ID was generated (since password hash uses user
 		// ID)
-		// user.setPassword(req.getParameter("password"));
-		// user = user.save(user);
+		user.setPassword(req.getParameter("password"));
+		user = user.save(user);
 
 		// login new user and redirect to project list
-		// if (user.login(req.getParameter("password"))) {
-		// user = user.findByID(user.getId());
-		// resp.setHeader(
-		// "Location",
-		// "/classification/projects.jsp?sessionToken="
-		// + user.getSessionToken());
-		// } else {
-		// resp.setHeader("Location", "/index.jsp?error=signupFailed");
-		// }
+		if (user.login(req.getParameter("password"))) {
+			user = user.findByID(user.getId());
+			resp.setHeader(
+					"Location",
+					"/classification/projects.jsp?sessionToken="
+							+ user.getSessionToken());
+		} else {
+			resp.setHeader("Location", "/index.jsp?error=signupFailed");
+		}
 
 		resp.setHeader("Location", "/index.jsp?info=signedUp");
 	}

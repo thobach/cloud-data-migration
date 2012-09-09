@@ -62,7 +62,7 @@
 		<form class="form-horizontal well" action="/classification/signup"
 			method="post">
 			<fieldset>
-				<!-- <legend>
+				<legend>
 					Sign Up <span class="label label-success">Free</span>
 				</legend>
 				<div class="control-group">
@@ -93,8 +93,8 @@
 					<button class="btn">Cancel</button>
 					<button type="submit" class="btn btn-primary">Sign Up
 						&raquo;</button>
-				</div> -->
-				<legend>
+				</div>
+				<!-- <legend>
 					Sign Up For Private Beta <span class="label label-success">Free</span>
 				</legend>
 				<div class="control-group">
@@ -110,6 +110,7 @@
 					<button type="submit" class="btn btn-primary">Sign Up
 						&raquo;</button>
 				</div>
+				 -->
 			</fieldset>
 		</form>
 	</div>
