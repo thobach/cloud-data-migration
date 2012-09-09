@@ -286,8 +286,8 @@
 			}
 			if (numberOfConflicts == 0) {
 		%><div class="control-group">
-			<p class="alert alert-info">Great, there seem to be now conflicts
-				in your Clout data migration strategy.</p>
+			<p class="alert alert-info">Great, there seem to be no conflicts
+				in your Cloud data migration strategy.</p>
 		</div>
 		<%
 			}
