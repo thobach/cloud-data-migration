@@ -20,3 +20,21 @@ config-local/clouddatamigration.properties
 config-appengine/clouddatamigration.properties
 
 WebContent/WEB-INF/classes/log4j.properties
+
+WebContent/WEB-INF/appengine-generated/datastore-indexes-auto.xml
+
+WebContent/WEB-INF/appengine-generated/local_db.bin
+
+WebContent/WEB-INF/classes/simplejpa.properties
+
+config-appengine/bulkloader-log-20120812.220159
+
+src/simplejpa.properties
+
+config-simpledb/simplejpa.properties
+
+config-oracle/clouddatamigration.properties
+
+config-simpledb/clouddatamigration.properties
+
+config-sqlserver/clouddatamigration.properties
