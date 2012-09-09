@@ -1,5 +1,8 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -28,7 +31,8 @@ public class LocalDBLCriterion extends AbstractModel<LocalDBLCriterion> {
 	private LocalDBLCategory localDBLCategory;
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -63,6 +67,10 @@ public class LocalDBLCriterion extends AbstractModel<LocalDBLCriterion> {
 	public void setOrderNumber(int orderNumber) {
 		this.orderNumber = orderNumber;
 	}
+	
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
 
 	/**
 	 * @return the id
@@ -85,10 +93,24 @@ public class LocalDBLCriterion extends AbstractModel<LocalDBLCriterion> {
 	public void setLocalDBLCategory(LocalDBLCategory localDBLCategory) {
 		this.localDBLCategory = localDBLCategory;
 	}
+	
+	public void setLocalDBLCategory(String localDBLCategory) {
+		setLocalDBLCategory(new LocalDBLCategory().findByID(localDBLCategory));
+	}
 
 	@Override
 	public String toString() {
 		return name + " - " + localDBLCategory.getName();
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("localDBLCategory", getLocalDBLCategory().getId());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

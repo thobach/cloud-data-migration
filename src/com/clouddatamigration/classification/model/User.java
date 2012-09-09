@@ -2,8 +2,13 @@ package com.clouddatamigration.classification.model;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.jdo.PersistenceManager;
@@ -18,6 +23,9 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.servlet.http.Cookie;
+
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 
 @PersistenceCapable(detachable = "true", table = "User")
 @Entity
@@ -100,6 +108,17 @@ public class User extends AbstractModel<User> {
 		this.updated = updated;
 	}
 
+	public void setUpdated(String updated) {
+		if (!"N".equals(updated)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setUpdated(df.parse(updated));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * @param passwordHash
 	 *            the passwordHash to set
@@ -156,6 +175,17 @@ public class User extends AbstractModel<User> {
 		this.created = created;
 	}
 
+	public void setCreated(String created) {
+		if (!"N".equals(created)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setCreated(df.parse(created));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -176,6 +206,10 @@ public class User extends AbstractModel<User> {
 	 */
 	public void setVerified(boolean verified) {
 		this.verified = verified;
+	}
+
+	public void setVerified(String verified) {
+		setVerified(Boolean.parseBoolean(verified));
 	}
 
 	/**
@@ -206,6 +240,17 @@ public class User extends AbstractModel<User> {
 	 */
 	public void setSessionExpiryDate(Date sessionExpiryDate) {
 		this.sessionExpiryDate = sessionExpiryDate;
+	}
+
+	public void setSessionExpiryDate(String setSessionExpiryDate) {
+		if (!"N".equals(setSessionExpiryDate)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setSessionExpiryDate(df.parse(setSessionExpiryDate));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -257,7 +302,7 @@ public class User extends AbstractModel<User> {
 			} else {
 				return null;
 			}
-		} else {
+		} else if (!useJpa && !useSimpleDB) {
 			PersistenceManager pm = pmf.getPersistenceManager();
 			Transaction tx = pm.currentTransaction();
 			try {
@@ -277,6 +322,14 @@ public class User extends AbstractModel<User> {
 				}
 				pm.close();
 			}
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName()
+					+ "` WHERE username = '" + username + "'");
+			return parseResultToObject(sdb.select(selectRequest).getItems()
+					.get(0).getAttributes());
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
@@ -290,7 +343,6 @@ public class User extends AbstractModel<User> {
 	public User findBySessionToken(String sessionToken) {
 		if (sessionToken != null && !sessionToken.isEmpty()) {
 			if (useJpa) {
-
 				javax.persistence.Query query = em.createQuery("select o from "
 						+ persistentClass.getName()
 						+ " o where o.sessionToken = :sessionTokenParameter");
@@ -302,8 +354,7 @@ public class User extends AbstractModel<User> {
 				} else {
 					return null;
 				}
-
-			} else {
+			} else if (!useJpa && !useSimpleDB) {
 				PersistenceManager pm = pmf.getPersistenceManager();
 				Transaction tx = pm.currentTransaction();
 				try {
@@ -323,6 +374,20 @@ public class User extends AbstractModel<User> {
 					}
 					pm.close();
 				}
+			} else if (useSimpleDB) {
+				SelectRequest selectRequest = new SelectRequest(
+						"SELECT * FROM `" + PREFIX
+								+ persistentClass.getSimpleName()
+								+ "` WHERE sessionToken = '" + sessionToken
+								+ "'");
+				List<Item> items = sdb.select(selectRequest).getItems();
+				if (items.size() == 1) {
+					return parseResultToObject(items.get(0).getAttributes());
+				} else {
+					return null;
+				}
+			} else {
+				throw new RuntimeException("Datastore not set or supported.");
 			}
 		} else {
 			return null;
@@ -357,6 +422,22 @@ public class User extends AbstractModel<User> {
 			updated = new Date();
 		}
 		return super.save(user);
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("username", getUsername());
+		fieldValues.put("verified", String.valueOf(isVerified()));
+		fieldValues.put("created", String.valueOf(getCreated().getTime()));
+		fieldValues.put("updated", String.valueOf(getUpdated().getTime()));
+		fieldValues.put("passwordHash", getPasswordHash());
+		fieldValues.put("email", getEmail());
+		fieldValues.put("sessionExpiryDate",
+				String.valueOf(getSessionExpiryDate().getTime()));
+		fieldValues.put("sessionToken", getSessionToken());
+		return fieldValues;
 	}
 
 }

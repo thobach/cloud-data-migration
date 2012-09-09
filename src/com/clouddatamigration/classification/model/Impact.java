@@ -1,6 +1,8 @@
 package com.clouddatamigration.classification.model;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -49,7 +51,8 @@ public class Impact extends AbstractModel<Impact> implements Comparable<Impact> 
 	private Set<CDMScenario> cdmScenarios = new TreeSet<CDMScenario>();
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -100,6 +103,10 @@ public class Impact extends AbstractModel<Impact> implements Comparable<Impact> 
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -142,6 +149,10 @@ public class Impact extends AbstractModel<Impact> implements Comparable<Impact> 
 	 */
 	public void setImpactCategory(ImpactCategory impactCategory) {
 		this.impactCategory = impactCategory;
+	}
+
+	public void setImpactCategory(String impactCategory) {
+		setImpactCategory(new ImpactCategory().findByID(impactCategory));
 	}
 
 	/**
@@ -194,6 +205,18 @@ public class Impact extends AbstractModel<Impact> implements Comparable<Impact> 
 			return this.impactCategory.getOrderNumber()
 					- o.getImpactCategory().getOrderNumber();
 		}
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("key", getKey());
+		fieldValues.put("description", getDescription());
+		fieldValues.put("impactCategory", getImpactCategory().getId());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

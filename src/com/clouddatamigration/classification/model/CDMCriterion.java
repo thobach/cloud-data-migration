@@ -1,5 +1,8 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -31,7 +34,8 @@ public class CDMCriterion extends AbstractModel<CDMCriterion> {
 	private int orderNumber;
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -82,6 +86,10 @@ public class CDMCriterion extends AbstractModel<CDMCriterion> {
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -104,9 +112,26 @@ public class CDMCriterion extends AbstractModel<CDMCriterion> {
 		this.selectionType = selectionType;
 	}
 
+	public void setSelectionType(String selectionType) {
+		if (selectionType != null && !selectionType.equals("N")) {
+			setSelectionType(SelectionType.valueOf(selectionType));
+		}
+	}
+
 	@Override
 	public String toString() {
 		return key;
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("key", getKey());
+		fieldValues.put("selectionType", getSelectionType().toString());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

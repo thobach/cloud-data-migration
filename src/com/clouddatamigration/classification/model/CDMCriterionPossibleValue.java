@@ -1,6 +1,9 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -16,6 +19,9 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 
 @PersistenceCapable(detachable = "true", table = "CDMCriterionPossibleValue")
 @Entity
@@ -47,7 +53,8 @@ public class CDMCriterionPossibleValue extends
 	private Set<CDMScenario> cdmScenarios = new TreeSet<CDMScenario>();
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -98,6 +105,10 @@ public class CDMCriterionPossibleValue extends
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the cdmCriterion
 	 */
@@ -111,6 +122,10 @@ public class CDMCriterionPossibleValue extends
 	 */
 	public void setCdmCriterion(CDMCriterion cdmCriterion) {
 		this.cdmCriterion = cdmCriterion;
+	}
+
+	public void setCdmCriterion(String cdmCriterion) {
+		setCdmCriterion(new CDMCriterion().findByID(cdmCriterion));
 	}
 
 	/**
@@ -135,25 +150,38 @@ public class CDMCriterionPossibleValue extends
 	 */
 	public Collection<CDMCriterionPossibleValue> getPossibleValues(
 			String cdmCriterionId) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(CDMCriterionPossibleValue.class,
-					"cdmCriterion == cdmCriterionParameter");
-			query.declareParameters("String cdmCriterionParameter");
-			query.setOrdering("orderNumber ASC");
-			@SuppressWarnings("unchecked")
-			Collection<CDMCriterionPossibleValue> possibleValues = (Collection<CDMCriterionPossibleValue>) query
-					.execute(cdmCriterionId);
-			possibleValues = pm.detachCopyAll(possibleValues);
-			tx.commit();
-			return possibleValues;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		if (!useJpa && !useSimpleDB) {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(CDMCriterionPossibleValue.class,
+						"cdmCriterion == cdmCriterionParameter");
+				query.declareParameters("String cdmCriterionParameter");
+				query.setOrdering("orderNumber ASC");
+				@SuppressWarnings("unchecked")
+				Collection<CDMCriterionPossibleValue> possibleValues = (Collection<CDMCriterionPossibleValue>) query
+						.execute(cdmCriterionId);
+				possibleValues = pm.detachCopyAll(possibleValues);
+				tx.commit();
+				return possibleValues;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
 			}
-			pm.close();
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName()
+					+ "` WHERE CDMCriterion_id = '" + cdmCriterionId + "'");
+			Collection<CDMCriterionPossibleValue> items = new ArrayList<CDMCriterionPossibleValue>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				items.add(parseResultToObject(item.getAttributes()));
+			}
+			return items;
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
@@ -170,6 +198,17 @@ public class CDMCriterionPossibleValue extends
 			return this.cdmCriterion.getOrderNumber()
 					- o.getCdmCriterion().getOrderNumber();
 		}
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("key", getKey());
+		fieldValues.put("cdmCriterion", getCdmCriterion().getId());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

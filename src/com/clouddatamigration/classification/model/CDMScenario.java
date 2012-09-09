@@ -1,6 +1,11 @@
 package com.clouddatamigration.classification.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -55,7 +60,8 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	private Set<Impact> cdmImpacts = new TreeSet<Impact>();
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -106,6 +112,10 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -133,6 +143,25 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	 */
 	public void setProjects(Set<Project> projects) {
 		this.projects = projects;
+	}
+
+	/**
+	 * @param created
+	 *            the created to set
+	 */
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public void setCreated(String created) {
+		if (!"N".equals(created)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setCreated(df.parse(created));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -190,5 +219,17 @@ public class CDMScenario extends AbstractModel<CDMScenario> implements
 	@Override
 	public int compareTo(CDMScenario o) {
 		return this.orderNumber - o.orderNumber;
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("created", String.valueOf(getCreated().getTime()));
+		fieldValues.put("description", getDescription());
+		fieldValues.put("imageLocation", getImageLocation());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 }

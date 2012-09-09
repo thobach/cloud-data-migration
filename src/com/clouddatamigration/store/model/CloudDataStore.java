@@ -1,6 +1,11 @@
 package com.clouddatamigration.store.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Extension;
@@ -22,7 +27,7 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
-	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	@Column(jdbcType = "VARCHAR", length = 32)
 	@Id
 	private String id;
@@ -62,12 +67,34 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 		this.created = created;
 	}
 
+	public void setCreated(String created) {
+		if (!"N".equals(created)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setCreated(df.parse(created));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * @param updated
 	 *            the updated to set
 	 */
 	public void setUpdated(Date updated) {
 		this.updated = updated;
+	}
+
+	public void setUpdated(String updated) {
+		if (!"N".equals(updated)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setUpdated(df.parse(updated));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -162,6 +189,19 @@ public class CloudDataStore extends AbstractModel<CloudDataStore> {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("provider", getProvider());
+		fieldValues.put("created", String.valueOf(getCreated().getTime()));
+		fieldValues.put("updated", String.valueOf(getUpdated().getTime()));
+		fieldValues.put("description", getDescription());
+		fieldValues.put("website", getWebsite());
+		return fieldValues;
 	}
 
 }

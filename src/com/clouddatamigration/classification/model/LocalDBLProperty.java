@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -15,6 +16,9 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 
 @PersistenceCapable(detachable = "true", table = "LocalDBLProperty")
 @Entity
@@ -33,7 +37,8 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 	private LocalDBLCriterionPossibleValue localDBLCriterionPossibleValue;
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -52,6 +57,10 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 	 */
 	public void setProject(Project project) {
 		this.project = project;
+	}
+
+	public void setProject(String project) {
+		setProject(new Project().findByID(project));
 	}
 
 	/**
@@ -77,6 +86,12 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 		this.localDBLCriterionPossibleValue = localDBLCriterionPossibleValue;
 	}
 
+	public void setLocalDBLCriterionPossibleValue(
+			String localDBLCriterionPossibleValue) {
+		setLocalDBLCriterionPossibleValue(new LocalDBLCriterionPossibleValue()
+				.findByID(localDBLCriterionPossibleValue));
+	}
+
 	/**
 	 * Returns the cloud data migration strategy connected to the project id
 	 * 
@@ -86,23 +101,58 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 	public HashMap<String, ArrayList<LocalDBLProperty>> findAllByProject(
 			String projectId) {
 		HashMap<String, ArrayList<LocalDBLProperty>> cdmStrategySet = new LinkedHashMap<String, ArrayList<LocalDBLProperty>>();
-		PersistenceManager pm = pmf.getPersistenceManager();
-		pm.getFetchPlan().setMaxFetchDepth(-1);
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(LocalDBLProperty.class,
-					"project == projectParameter");
-			query.declareParameters("String projectParameter");
-			query.setOrdering("localDBLCriterionPossibleValue.localDBLCriterion.localDBLCategory.orderNumber ASC, localDBLCriterionPossibleValue.localDBLCriterion.orderNumber ASC, localDBLCriterionPossibleValue.orderNumber ASC");
-			@SuppressWarnings("unchecked")
-			Collection<LocalDBLProperty> localDblProperties = (Collection<LocalDBLProperty>) query
-					.execute(projectId);
+		if (!useJpa && !useSimpleDB) {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			pm.getFetchPlan().setMaxFetchDepth(-1);
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(LocalDBLProperty.class,
+						"project == projectParameter");
+				query.declareParameters("String projectParameter");
+				query.setOrdering("localDBLCriterionPossibleValue.localDBLCriterion.localDBLCategory.orderNumber ASC, localDBLCriterionPossibleValue.localDBLCriterion.orderNumber ASC, localDBLCriterionPossibleValue.orderNumber ASC");
+				@SuppressWarnings("unchecked")
+				Collection<LocalDBLProperty> localDblProperties = (Collection<LocalDBLProperty>) query
+						.execute(projectId);
 
-			localDblProperties = pm.detachCopyAll(localDblProperties);
+				localDblProperties = pm.detachCopyAll(localDblProperties);
 
-			for (LocalDBLProperty localDblProperty : localDblProperties) {
+				for (LocalDBLProperty localDblProperty : localDblProperties) {
 
+					if (cdmStrategySet.containsKey(localDblProperty
+							.getLocalDBLCriterionPossibleValue()
+							.getLocalDBLCriterion().getName())) {
+						cdmStrategySet.get(
+								localDblProperty
+										.getLocalDBLCriterionPossibleValue()
+										.getLocalDBLCriterion().getName()).add(
+								localDblProperty);
+					} else {
+						ArrayList<LocalDBLProperty> properties = new ArrayList<LocalDBLProperty>();
+						properties.add(localDblProperty);
+						cdmStrategySet.put(localDblProperty
+								.getLocalDBLCriterionPossibleValue()
+								.getLocalDBLCriterion().getName(), properties);
+					}
+				}
+
+				tx.commit();
+				return cdmStrategySet;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
+			}
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName()
+					+ "` WHERE Project_id = '" + projectId + "'");
+			Collection<LocalDBLProperty> items = new ArrayList<LocalDBLProperty>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				items.add(parseResultToObject(item.getAttributes()));
+			}
+			for (LocalDBLProperty localDblProperty : items) {
 				if (cdmStrategySet.containsKey(localDblProperty
 						.getLocalDBLCriterionPossibleValue()
 						.getLocalDBLCriterion().getName())) {
@@ -119,14 +169,9 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 							.getLocalDBLCriterion().getName(), properties);
 				}
 			}
-
-			tx.commit();
 			return cdmStrategySet;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
-			}
-			pm.close();
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
@@ -168,6 +213,16 @@ public class LocalDBLProperty extends AbstractModel<LocalDBLProperty> {
 				+ localDBLCriterionPossibleValue.getLocalDBLCriterion()
 						.getName() + " - "
 				+ localDBLCriterionPossibleValue.getKey();
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("localDBLCriterionPossibleValue",
+				getLocalDBLCriterionPossibleValue().getId());
+		fieldValues.put("project", getProject().getId());
+		return fieldValues;
 	}
 
 }

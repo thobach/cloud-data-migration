@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -21,6 +22,8 @@ import javax.persistence.Id;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.clouddatamigration.classification.model.AbstractModel;
 import com.clouddatamigration.classification.model.CDHSCriterionPossibleValue;
 import com.google.appengine.datanucleus.annotations.Unowned;
@@ -36,7 +39,7 @@ public class CloudDataStoreProperty extends
 	@Column(jdbcType = "VARCHAR", length = 32)
 	@Id
 	private String id;
-	
+
 	@Persistent(defaultFetchGroup = "true", column = "CloudDataStore_id")
 	@Unowned
 	private CloudDataStore cloudDataStore;
@@ -62,6 +65,11 @@ public class CloudDataStoreProperty extends
 	public void setCdhsCriterionPossibleValue(
 			CDHSCriterionPossibleValue cdhsCriterionPossibleValue) {
 		this.cdhsCriterionPossibleValue = cdhsCriterionPossibleValue;
+	}
+
+	public void setCdhsCriterionPossibleValue(String cdhsCriterionPossibleValue) {
+		setCdhsCriterionPossibleValue(new CDHSCriterionPossibleValue()
+				.findByID(cdhsCriterionPossibleValue));
 	}
 
 	/**
@@ -94,6 +102,10 @@ public class CloudDataStoreProperty extends
 		this.cloudDataStore = cloudDataStore;
 	}
 
+	public void setCloudDataStore(String cloudDataStore) {
+		setCloudDataStore(new CloudDataStore().findByID(cloudDataStore));
+	}
+
 	/**
 	 * @return the input value
 	 */
@@ -121,7 +133,6 @@ public class CloudDataStoreProperty extends
 		HashMap<String, ArrayList<CloudDataStoreProperty>> cloudDataStorePropertySet = new LinkedHashMap<String, ArrayList<CloudDataStoreProperty>>();
 		if (cdsId != null && !cdsId.isEmpty()) {
 			if (useJpa) {
-
 				javax.persistence.Query query = em
 						.createQuery("select o from "
 								+ persistentClass.getName()
@@ -152,7 +163,7 @@ public class CloudDataStoreProperty extends
 						}
 					}
 				}
-			} else {
+			} else if (!useJpa && !useSimpleDB) {
 				PersistenceManager pm = pmf.getPersistenceManager();
 				pm.getFetchPlan().setMaxFetchDepth(-1);
 				Transaction tx = pm.currentTransaction();
@@ -196,6 +207,36 @@ public class CloudDataStoreProperty extends
 					}
 					pm.close();
 				}
+			} else if (useSimpleDB) {
+				SelectRequest selectRequest = new SelectRequest(
+						"SELECT * FROM `" + PREFIX
+								+ persistentClass.getSimpleName()
+								+ "` WHERE CloudDataStore_id = '" + cdsId + "'");
+				List<CloudDataStoreProperty> items = new ArrayList<CloudDataStoreProperty>();
+				for (Item item : sdb.select(selectRequest).getItems()) {
+					items.add(parseResultToObject(item.getAttributes()));
+				}
+
+				for (CloudDataStoreProperty cloudDataStoreProperty : items) {
+					if (cloudDataStorePropertySet
+							.containsKey(cloudDataStoreProperty
+									.getCdhsCriterionPossibleValue()
+									.getCdhsCriterion().getKey())) {
+						cloudDataStorePropertySet.get(
+								cloudDataStoreProperty
+										.getCdhsCriterionPossibleValue()
+										.getCdhsCriterion().getKey()).add(
+								cloudDataStoreProperty);
+					} else {
+						ArrayList<CloudDataStoreProperty> properties = new ArrayList<CloudDataStoreProperty>();
+						properties.add(cloudDataStoreProperty);
+						cloudDataStorePropertySet.put(cloudDataStoreProperty
+								.getCdhsCriterionPossibleValue()
+								.getCdhsCriterion().getKey(), properties);
+					}
+				}
+			} else {
+				throw new RuntimeException("Datastore not set or supported.");
 			}
 		}
 		return cloudDataStorePropertySet;
@@ -238,6 +279,17 @@ public class CloudDataStoreProperty extends
 		return cloudDataStore.getName() + " - "
 				+ cdhsCriterionPossibleValue.getCdhsCriterion().getKey()
 				+ " - " + cdhsCriterionPossibleValue.getKey();
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("inputValue", getInputValue());
+		fieldValues.put("CloudDataStore", getCloudDataStore().getId());
+		fieldValues.put("CDHSCriterionPossibleValue",
+				getCdhsCriterionPossibleValue().getId());
+		return fieldValues;
 	}
 
 }

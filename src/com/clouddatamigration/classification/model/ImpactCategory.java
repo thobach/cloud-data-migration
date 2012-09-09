@@ -1,5 +1,8 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -25,7 +28,8 @@ public class ImpactCategory extends AbstractModel<ImpactCategory> {
 	private int orderNumber;
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -61,6 +65,10 @@ public class ImpactCategory extends AbstractModel<ImpactCategory> {
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -71,6 +79,15 @@ public class ImpactCategory extends AbstractModel<ImpactCategory> {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

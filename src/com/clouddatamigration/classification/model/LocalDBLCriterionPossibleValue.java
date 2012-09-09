@@ -1,6 +1,9 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -12,6 +15,9 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 
 @PersistenceCapable(detachable = "true", table = "LocalDBLCriterionPossibleValue")
 @Entity
@@ -37,7 +43,8 @@ public class LocalDBLCriterionPossibleValue extends
 	private LocalDBLCriterion localDBLCriterion;
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -88,6 +95,10 @@ public class LocalDBLCriterionPossibleValue extends
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the localDBLCriterion
 	 */
@@ -101,6 +112,11 @@ public class LocalDBLCriterionPossibleValue extends
 	 */
 	public void setLocalDBLCriterion(LocalDBLCriterion localDBLCriterion) {
 		this.localDBLCriterion = localDBLCriterion;
+	}
+
+	public void setLocalDBLCriterion(String localDBLCriterion) {
+		setLocalDBLCriterion(new LocalDBLCriterion()
+				.findByID(localDBLCriterion));
 	}
 
 	/**
@@ -118,31 +134,56 @@ public class LocalDBLCriterionPossibleValue extends
 	 */
 	public Collection<LocalDBLCriterionPossibleValue> getPossibleValues(
 			String localDBLCriterionParameterId) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(LocalDBLCriterionPossibleValue.class,
-					"localDBLCriterion == localDBLCriterionParameter");
-			query.declareParameters("String localDBLCriterionParameter");
-			query.setOrdering("orderNumber ASC");
-			@SuppressWarnings("unchecked")
-			Collection<LocalDBLCriterionPossibleValue> possibleValues = (Collection<LocalDBLCriterionPossibleValue>) query
-					.execute(localDBLCriterionParameterId);
-			possibleValues = pm.detachCopyAll(possibleValues);
-			tx.commit();
-			return possibleValues;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		if (!useJpa && !useSimpleDB) {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(LocalDBLCriterionPossibleValue.class,
+						"localDBLCriterion == localDBLCriterionParameter");
+				query.declareParameters("String localDBLCriterionParameter");
+				query.setOrdering("orderNumber ASC");
+				@SuppressWarnings("unchecked")
+				Collection<LocalDBLCriterionPossibleValue> possibleValues = (Collection<LocalDBLCriterionPossibleValue>) query
+						.execute(localDBLCriterionParameterId);
+				possibleValues = pm.detachCopyAll(possibleValues);
+				tx.commit();
+				return possibleValues;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
 			}
-			pm.close();
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName()
+					+ "` WHERE LocalDBLCriterion_id = '"
+					+ localDBLCriterionParameterId + "'");
+			Collection<LocalDBLCriterionPossibleValue> items = new ArrayList<LocalDBLCriterionPossibleValue>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				items.add(parseResultToObject(item.getAttributes()));
+			}
+			return items;
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
 	@Override
 	public String toString() {
 		return key + " - " + localDBLCriterion.getName();
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("key", getKey());
+		fieldValues.put("localDBLCriterion", getLocalDBLCriterion().getId());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

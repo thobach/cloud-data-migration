@@ -2,6 +2,7 @@ package com.clouddatamigration.classification.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.google.appengine.datanucleus.annotations.Unowned;
 
 @PersistenceCapable(detachable = "true", table = "CDHSCriterionPossibleValue")
@@ -106,6 +109,12 @@ public class CDHSCriterionPossibleValue extends
 		this.type = type;
 	}
 
+	public void setType(String type) {
+		if (!type.equals("N")) {
+			setType(Type.valueOf(type));
+		}
+	}
+
 	/**
 	 * @return the orderNumber
 	 */
@@ -119,6 +128,10 @@ public class CDHSCriterionPossibleValue extends
 	 */
 	public void setOrderNumber(int orderNumber) {
 		this.orderNumber = orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
 	}
 
 	/**
@@ -135,6 +148,12 @@ public class CDHSCriterionPossibleValue extends
 	 */
 	public void setScale(Scale scale) {
 		this.scale = scale;
+	}
+
+	public void setScale(String scale) {
+		if (!scale.equals("N")) {
+			setScale(Scale.valueOf(scale));
+		}
 	}
 
 	/**
@@ -160,6 +179,10 @@ public class CDHSCriterionPossibleValue extends
 		this.cdhsCriterion = cdhsCriterion;
 	}
 
+	public void setCdhsCriterion(String cdhsCriterion) {
+		setCdhsCriterion(new CDHSCriterion().findByID(cdhsCriterion));
+	}
+
 	/**
 	 * Returns all possible values of the given criterion
 	 * 
@@ -168,25 +191,38 @@ public class CDHSCriterionPossibleValue extends
 	 */
 	public Collection<CDHSCriterionPossibleValue> getPossibleValues(
 			String cdhsCriterionId) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(CDHSCriterionPossibleValue.class,
-					"cdhsCriterion == cdhsCriterionParameter");
-			query.declareParameters("String cdhsCriterionParameter");
-			query.setOrdering("orderNumber ASC");
-			@SuppressWarnings("unchecked")
-			Collection<CDHSCriterionPossibleValue> possibleValues = (Collection<CDHSCriterionPossibleValue>) query
-					.execute(cdhsCriterionId);
-			possibleValues = pm.detachCopyAll(possibleValues);
-			tx.commit();
-			return possibleValues;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		if (!useJpa && !useSimpleDB) {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(CDHSCriterionPossibleValue.class,
+						"cdhsCriterion == cdhsCriterionParameter");
+				query.declareParameters("String cdhsCriterionParameter");
+				query.setOrdering("orderNumber ASC");
+				@SuppressWarnings("unchecked")
+				Collection<CDHSCriterionPossibleValue> possibleValues = (Collection<CDHSCriterionPossibleValue>) query
+						.execute(cdhsCriterionId);
+				possibleValues = pm.detachCopyAll(possibleValues);
+				tx.commit();
+				return possibleValues;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
 			}
-			pm.close();
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName()
+					+ "` WHERE CDHSCriterion_id = '" + cdhsCriterionId + "'");
+			List<CDHSCriterionPossibleValue> items = new ArrayList<CDHSCriterionPossibleValue>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				items.add(parseResultToObject(item.getAttributes()));
+			}
+			return items;
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
@@ -231,7 +267,7 @@ public class CDHSCriterionPossibleValue extends
 				return cdhsCriterionPossibleValueMap;
 			}
 			return cdhsCriterionPossibleValueMap;
-		} else {
+		} else if (!useJpa && !useSimpleDB) {
 			PersistenceManager pm = pmf.getPersistenceManager();
 			pm.getFetchPlan().setMaxFetchDepth(-1);
 			Transaction tx = pm.currentTransaction();
@@ -254,7 +290,8 @@ public class CDHSCriterionPossibleValue extends
 
 					// seems GAE does not detach the child objects
 					if (useGAE) {
-						cdhsCriterionPossibleValue = pm.detachCopy(cdhsCriterionPossibleValue);
+						cdhsCriterionPossibleValue = pm
+								.detachCopy(cdhsCriterionPossibleValue);
 						cdhsCriterion = pm
 								.detachCopy(cdhsCriterionPossibleValue
 										.getCdhsCriterion());
@@ -284,6 +321,30 @@ public class CDHSCriterionPossibleValue extends
 				}
 				pm.close();
 			}
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName() + "`");
+			List<CDHSCriterionPossibleValue> items = new ArrayList<CDHSCriterionPossibleValue>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				items.add(parseResultToObject(item.getAttributes()));
+			}
+			for (CDHSCriterionPossibleValue cdhsCriterionPossibleValue : items) {
+				CDHSCriterion cdhsCriterion = cdhsCriterionPossibleValue
+						.getCdhsCriterion();
+				if (cdhsCriterionPossibleValueMap.containsKey(cdhsCriterion
+						.getKey())) {
+					cdhsCriterionPossibleValueMap.get(cdhsCriterion.getKey())
+							.add(cdhsCriterionPossibleValue);
+				} else {
+					ArrayList<CDHSCriterionPossibleValue> properties = new ArrayList<CDHSCriterionPossibleValue>();
+					properties.add(cdhsCriterionPossibleValue);
+					cdhsCriterionPossibleValueMap.put(cdhsCriterion.getKey(),
+							properties);
+				}
+			}
+			return cdhsCriterionPossibleValueMap;
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
@@ -291,6 +352,19 @@ public class CDHSCriterionPossibleValue extends
 	public String toString() {
 		return key + " - " + cdhsCriterion.getKey() + " - "
 				+ cdhsCriterion.getCdhsCategory().getName();
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("key", getKey());
+		fieldValues.put("type", getType().toString());
+		fieldValues.put("scale", getScale().toString());
+		fieldValues.put("cdhsCriterion", getCdhsCriterion().getId());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

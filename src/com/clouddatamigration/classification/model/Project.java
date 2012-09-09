@@ -1,7 +1,13 @@
 package com.clouddatamigration.classification.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -22,6 +28,9 @@ import javax.persistence.Id;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+import com.amazonaws.services.simpledb.model.Attribute;
+import com.amazonaws.services.simpledb.model.Item;
+import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.clouddatamigration.store.model.CloudDataStore;
 
 @PersistenceCapable(detachable = "true", table = "Project")
@@ -70,7 +79,8 @@ public class Project extends AbstractModel<Project> {
 	private Set<CDMCriterionPossibleValue> cdmCriterionPossibleValues = new TreeSet<CDMCriterionPossibleValue>();
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -165,6 +175,10 @@ public class Project extends AbstractModel<Project> {
 		this.user = user;
 	}
 
+	public void setUser(String user) {
+		setUser(new User().findByID(user));
+	}
+
 	/**
 	 * @return the cloudDataStore
 	 */
@@ -180,11 +194,31 @@ public class Project extends AbstractModel<Project> {
 		this.cloudDataStore = cloudDataStore;
 	}
 
+	public void setCloudDataStore(String cloudDataStore) {
+		setCloudDataStore(new CloudDataStore().findByID(cloudDataStore));
+	}
+
 	/**
 	 * @return the cdmScenarios
 	 */
 	public Set<CDMScenario> getCdmScenarios() {
-		return new TreeSet<CDMScenario>(cdmScenarios);
+		if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + "Project_has_CDMScenario"
+					+ "` WHERE Project_id = '" + id + "'");
+			Set<CDMScenario> items = new TreeSet<CDMScenario>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				for (Attribute attribute : item.getAttributes()) {
+					if (attribute.getName().equals("CDMScenario_id")) {
+						items.add(new CDMScenario().findByID(attribute
+								.getValue()));
+					}
+				}
+			}
+			return items;
+		} else {
+			return new TreeSet<CDMScenario>(cdmScenarios);
+		}
 	}
 
 	/**
@@ -199,8 +233,26 @@ public class Project extends AbstractModel<Project> {
 	 * @return the cdmCriterionPossibleValues
 	 */
 	public Set<CDMCriterionPossibleValue> getCdmCriterionPossibleValues() {
-		return new TreeSet<CDMCriterionPossibleValue>(
-				cdmCriterionPossibleValues);
+		if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + "CDMStrategy" + "` WHERE Project_id = '" + id
+					+ "'");
+			Set<CDMCriterionPossibleValue> items = new TreeSet<CDMCriterionPossibleValue>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				for (Attribute attribute : item.getAttributes()) {
+					if (attribute.getName().equals(
+							"CDMCriterionPossibleValue_id")) {
+						items.add(new CDMCriterionPossibleValue()
+								.findByID(attribute.getValue()));
+					}
+				}
+
+			}
+			return items;
+		} else {
+			return new TreeSet<CDMCriterionPossibleValue>(
+					cdmCriterionPossibleValues);
+		}
 	}
 
 	/**
@@ -219,6 +271,40 @@ public class Project extends AbstractModel<Project> {
 		return updated;
 	}
 
+	public void setUpdated(Date updated) {
+		this.updated = updated;
+	}
+
+	public void setUpdated(String updated) {
+		if (!"N".equals(updated)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setUpdated(df.parse(updated));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * @param created
+	 *            the created to set
+	 */
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public void setCreated(String created) {
+		if (!"N".equals(created)) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				setCreated(df.parse(created));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * Returns the projects connected to the userId
 	 * 
@@ -226,23 +312,37 @@ public class Project extends AbstractModel<Project> {
 	 * @return
 	 */
 	public Collection<Project> findAllByUser(String userId) {
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-			Query query = pm.newQuery(Project.class, "user == userParameter");
-			query.declareParameters("String userParameter");
-			@SuppressWarnings("unchecked")
-			Collection<Project> projects = (Collection<Project>) query
-					.execute(userId);
-			projects = pm.detachCopyAll(projects);
-			tx.commit();
-			return projects;
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
+		if (!useJpa && !useSimpleDB) {
+			PersistenceManager pm = pmf.getPersistenceManager();
+			Transaction tx = pm.currentTransaction();
+			try {
+				tx.begin();
+				Query query = pm.newQuery(Project.class,
+						"user == userParameter");
+				query.declareParameters("String userParameter");
+				@SuppressWarnings("unchecked")
+				Collection<Project> projects = (Collection<Project>) query
+						.execute(userId);
+				projects = pm.detachCopyAll(projects);
+				tx.commit();
+				return projects;
+			} finally {
+				if (tx.isActive()) {
+					tx.rollback();
+				}
+				pm.close();
 			}
-			pm.close();
+		} else if (useSimpleDB) {
+			SelectRequest selectRequest = new SelectRequest("SELECT * FROM `"
+					+ PREFIX + persistentClass.getSimpleName()
+					+ "` WHERE User_id = '" + userId + "'");
+			Collection<Project> items = new ArrayList<Project>();
+			for (Item item : sdb.select(selectRequest).getItems()) {
+				items.add(parseResultToObject(item.getAttributes()));
+			}
+			return items;
+		} else {
+			throw new RuntimeException("Datastore not set or supported.");
 		}
 	}
 
@@ -257,6 +357,21 @@ public class Project extends AbstractModel<Project> {
 			updated = new Date();
 		}
 		return super.save(project);
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("cloudDataStore", getCloudDataStore().getId());
+		fieldValues.put("created", String.valueOf(getCreated().getTime()));
+		fieldValues.put("updated", String.valueOf(getUpdated().getTime()));
+		fieldValues.put("description", getDescription());
+		fieldValues.put("url", getUrl());
+		fieldValues.put("user", getUser().getId());
+		fieldValues.put("department", getDepartment());
+		return fieldValues;
 	}
 
 }

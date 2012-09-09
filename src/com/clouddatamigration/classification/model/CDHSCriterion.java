@@ -1,5 +1,8 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -17,7 +20,7 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
-	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	@Column(jdbcType = "VARCHAR", length = 32)
 	@Id
 	private String id;
@@ -95,6 +98,10 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -117,6 +124,10 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 		this.cdhsCategory = cdhsCategory;
 	}
 
+	public void setCdhsCategory(String cdhsCategory) {
+		setCdhsCategory(new CDHSCategory().findByID(cdhsCategory));
+	}
+
 	/**
 	 * @return the selectionType
 	 */
@@ -130,6 +141,12 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 	 */
 	public void setSelectionType(SelectionType selectionType) {
 		this.selectionType = selectionType;
+	}
+
+	public void setSelectionType(String selectionType) {
+		if (!selectionType.equals("N")) {
+			setSelectionType(SelectionType.valueOf(selectionType));
+		}
 	}
 
 	/**
@@ -150,6 +167,19 @@ public class CDHSCriterion extends AbstractModel<CDHSCriterion> {
 	@Override
 	public String toString() {
 		return key + " - " + cdhsCategory.getName();
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("key", getKey());
+		fieldValues.put("description", getDescription());
+		fieldValues.put("selectionType", getSelectionType().toString());
+		fieldValues.put("cdhsCategory", getCdhsCategory().getId());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }

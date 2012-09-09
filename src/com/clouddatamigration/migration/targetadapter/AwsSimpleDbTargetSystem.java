@@ -1,5 +1,6 @@
 package com.clouddatamigration.migration.targetadapter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +19,9 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
@@ -141,6 +146,10 @@ public class AwsSimpleDbTargetSystem implements TargetSystem {
 				connectionProperties.get("AWSAccessKeyId"),
 				connectionProperties.get("AWSSecretKey")));
 
+		AmazonS3 s3 = new AmazonS3Client(new BasicAWSCredentials(
+				connectionProperties.get("AWSAccessKeyId"),
+				connectionProperties.get("AWSSecretKey")));
+
 		ServletOutputStream out = null;
 
 		try {
@@ -178,6 +187,18 @@ public class AwsSimpleDbTargetSystem implements TargetSystem {
 						if (lineNumber == 0) {
 							headingsPerTable.add(fieldOfLine.replace("\"", ""));
 						} else {
+							if (fieldOfLine.length() > 1024) {
+								// upload content to S3 and put a link into the
+								// field instead of the real content
+								s3.createBucket(domainName.toLowerCase());
+								String uuid = UUID.randomUUID().toString();
+								ByteArrayInputStream in = new ByteArrayInputStream(
+										fieldOfLine.getBytes("UTF-8"));
+								ObjectMetadata metaData = new ObjectMetadata();
+								s3.putObject(domainName.toLowerCase(), uuid,
+										in, metaData);
+								fieldOfLine = "s3://" + domainName + "/" + uuid;
+							}
 							attributesPerLine.add(new ReplaceableAttribute(
 									headingsPerTable.get(fieldNumber),
 									fieldOfLine.replace("\"", ""), false));

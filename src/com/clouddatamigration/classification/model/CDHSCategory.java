@@ -1,5 +1,8 @@
 package com.clouddatamigration.classification.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -15,7 +18,7 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.UUIDHEX)
-	@Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	@Column(jdbcType = "VARCHAR", length = 32)
 	@Id
 	private String id;
@@ -27,7 +30,8 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 	private int orderNumber;
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(String id) {
 		this.id = id;
@@ -63,6 +67,10 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 		this.orderNumber = orderNumber;
 	}
 
+	public void setOrderNumber(String orderNumber) {
+		setOrderNumber(Integer.valueOf(orderNumber));
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -73,6 +81,15 @@ public class CDHSCategory extends AbstractModel<CDHSCategory> {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public Map<String, String> getFieldValues() {
+		HashMap<String, String> fieldValues = new HashMap<String, String>();
+		fieldValues.put("id", getId());
+		fieldValues.put("name", getName());
+		fieldValues.put("orderNumber", String.valueOf(getOrderNumber()));
+		return fieldValues;
 	}
 
 }
