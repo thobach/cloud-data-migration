@@ -1,6 +1,7 @@
 package com.clouddatamigration.classification.controller;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -32,7 +33,7 @@ public class SignoutServlet extends HttpServlet {
 		if (sessionToken != null) {
 			User userService = new User();
 			User user = userService.findBySessionToken(sessionToken);
-			user.setSessionExpiryDate(null);
+			user.setSessionExpiryDate(new Date(0L));
 			user.setSessionToken(null);
 			user = user.save(user);
 		}
