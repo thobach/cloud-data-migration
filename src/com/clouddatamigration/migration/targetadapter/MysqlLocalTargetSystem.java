@@ -145,7 +145,7 @@ public class MysqlLocalTargetSystem implements TargetSystem {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean supportsSql() {
 		return true;
@@ -198,6 +198,9 @@ public class MysqlLocalTargetSystem implements TargetSystem {
 			}
 
 			Process child = Runtime.getRuntime().exec(cmd);
+			// wait until execution is done (returns), before deleting files
+			// that the process needs
+			child.waitFor();
 
 			if (out != null) {
 				out.println("Execution done.");
@@ -254,6 +257,8 @@ public class MysqlLocalTargetSystem implements TargetSystem {
 					e1.printStackTrace();
 				}
 			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		return false;
 	}
