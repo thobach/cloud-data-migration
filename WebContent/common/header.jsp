@@ -111,7 +111,7 @@ body {
 						<div class="input-append">
 							<input type="search" name="q" class="search-query"
 								placeholder="Search"
-								style="padding-top: 5px; padding-bottom: 5px; margin-top: -1px; width: 110px">
+								style="padding-top: 5px; padding-bottom: 5px; margin-top: -1px; width: 100px">
 							<button class="btn" type="submit" style="margin: 0;">
 								<i class="icon-search"></i>
 							</button>
