@@ -10,8 +10,7 @@
 	if (request.getParameter("info") != null
 			&& request.getParameter("info").equals("signedUp")) {
 %><div class="alert alert-success">
-	Thanks for your interest! <i class="icon-heart"></i> We will send you
-	an invitation soon.
+	Thanks for your interest! <i class="icon-heart"></i> You can now log in using your username and password.
 </div>
 <%
 	}
@@ -60,7 +59,7 @@
 <div class="row">
 	<div class="span6">
 		<form class="form-horizontal well" action="/classification/signup"
-			method="post">
+			method="post" id="signup-form">
 			<fieldset>
 				<legend>
 					Sign Up <span class="label label-success">Free</span>
@@ -85,8 +84,7 @@
 					<label class="control-label" for="email">E-mail Address</label>
 					<div class="controls">
 						<input type="email" class="input-xlarge" id="email" name="email">
-						<p class="help-block">Your E-mail address to verify your
-							account.</p>
+						<p class="help-block">Your valid E-mail address in case we need to notify you about this service.</p>
 					</div>
 				</div>
 				<div class="form-actions">

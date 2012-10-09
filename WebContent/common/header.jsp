@@ -22,6 +22,19 @@ body {
 .radio.inline+.radio.inline,.checkbox.inline+.checkbox.inline {
 	margin-left: 25px;
 }
+label.valid {
+  width: 24px;
+  height: 24px;
+  background: url(/img/valid.png) center center no-repeat;
+  display: inline-block;
+  text-indent: -9999px;
+}
+label.error {
+  font-weight: bold;
+  color: red;
+  padding: 2px 8px;
+  margin-top: 2px;
+}
 </style>
 <!-- HTML5 for IE6-8 -->
 <!--[if lt IE 9]>
